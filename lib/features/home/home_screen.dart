@@ -19,6 +19,8 @@ import 'widgets/quick_natural_log_dialog.dart';
 import 'widgets/kindness_mailbox_dialog.dart';
 import '../stats/widgets/share_poster_dialog.dart';
 import 'package:uuid/uuid.dart';
+import '../../../core/services/habit_view_mode_service.dart';
+import 'widgets/habit_matrix_grid_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,16 +46,23 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     HabitOrderService.instance.addListener(_onHabitOrderChanged);
+    HabitViewModeService.instance.addListener(_onViewModeChanged);
+    HabitViewModeService.instance.init();
     _loadHabits();
   }
 
   @override
   void dispose() {
     HabitOrderService.instance.removeListener(_onHabitOrderChanged);
+    HabitViewModeService.instance.removeListener(_onViewModeChanged);
     super.dispose();
   }
 
   void _onHabitOrderChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onViewModeChanged() {
     if (mounted) setState(() {});
   }
 
@@ -330,6 +339,61 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _toggleHabitForDate(Habit habit, String dateStr) async {
+    final todayStr = DateTime.now().toIso8601String().split('T')[0];
+    if (dateStr == todayStr) {
+      await _toggleHabit(habit);
+      return;
+    }
+
+    if (kIsWeb) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('已就地更新「${habit.name}」在 $dateStr 的打卡状态 ✨'),
+          duration: const Duration(seconds: 1),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final existing = await SQLiteService.instance.getCheckInsForDate(dateStr);
+    final targetRecord = existing.where((c) => c.habitId == habit.id).firstOrNull;
+
+    if (targetRecord != null && targetRecord.status == CheckInStatus.completed) {
+      await SQLiteService.instance.deleteCheckIn(habit.id, dateStr);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('「${habit.name}」已取消 $dateStr 打卡'),
+            duration: const Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } else {
+      final checkIn = CheckIn(
+        id: const Uuid().v4(),
+        habitId: habit.id,
+        date: dateStr,
+        status: CheckInStatus.completed,
+        createdAt: DateTime.now(),
+      );
+      await SQLiteService.instance.insertCheckIn(checkIn);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('「${habit.name}」已补签 $dateStr ✨'),
+            backgroundColor: AppTheme.mintGreen,
+            duration: const Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+    setState(() {});
   }
 
   Future<void> _toggleHabit(
@@ -672,6 +736,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   setState(() => _isReorderMode = !_isReorderMode);
                 },
               ),
+              // 周历矩阵 vs 卡片列表视图切换 (F14.1)
+              ListenableBuilder(
+                listenable: HabitViewModeService.instance,
+                builder: (context, _) {
+                  final isMatrix = HabitViewModeService.instance.isMatrixMode;
+                  return IconButton(
+                    tooltip: isMatrix ? '切换至卡片列表视图' : '切换至周历矩阵视图',
+                    icon: Icon(
+                      isMatrix ? Icons.view_agenda_rounded : Icons.grid_view_rounded,
+                      size: 22,
+                      color: isMatrix ? AppTheme.mintGreen : null,
+                    ),
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      HabitViewModeService.instance.toggleViewMode();
+                    },
+                  );
+                },
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 12.0),
                 child: IconButton(
@@ -1003,6 +1086,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   );
+                },
+              ),
+            )
+          else if (HabitViewModeService.instance.isMatrixMode)
+            SliverToBoxAdapter(
+              child: HabitMatrixGridView(
+                habits: displayedHabits,
+                onToggleCell: (habit, dateStr) async {
+                  await _toggleHabitForDate(habit, dateStr);
+                },
+                onHabitLongPress: (habit) {
+                  _showActionSheet(habit);
+                },
+                onCellLongPress: (habit, dateStr) {
+                  _showLogSheet(habit);
                 },
               ),
             )

@@ -24,7 +24,7 @@
 
 | 导航标签 | 核心组件 | 核心功能与亮点 |
 | :--- | :--- | :--- |
-| **今日习惯** <br>*(Today)* | [`HomeScreen`](file:///d:/work/gotime/lib/features/home/home_screen.dart) | • 极速打卡、长按休假冻结跳过<br>• 数值型自适应步进微调 (`QuickCounterSheet`)<br>• 坏习惯戒断正向计时与 4-7-8 呼吸急救冲浪 (`Urge Surfing`)<br>• 《原子习惯》两分钟破壁器与习惯堆叠<br>• 晨/午/晚时段过滤与自定义触感拖拽排序 |
+| **今日习惯** <br>*(Today)* | [`HomeScreen`](file:///d:/work/gotime/lib/features/home/home_screen.dart) | • **周历矩阵与卡片列表双视图** (`HabitMatrixGridView` 周一至周日全景打卡)<br>• 极速打卡、长按休假冻结跳过<br>• 数值型自适应步进微调 (`QuickCounterSheet`)<br>• 坏习惯戒断正向计时与 4-7-8 呼吸急救冲浪 (`Urge Surfing`)<br>• 《原子习惯》两分钟破壁器与习惯堆叠<br>• 晨/午/晚时段过滤与自定义触感拖拽排序 |
 | **数据洞察** <br>*(Stats)* | [`StatsScreen`](file:///d:/work/gotime/lib/features/stats/stats_screen.dart) | • GitHub 风格 52 周年度全景热力图 (冰蓝休假标识)<br>• 指数平滑稳态强度分多维雷达与完成率曲线<br>• 习惯心流疗愈微缩花园 (拟物玻璃温室，萌植生长无枯萎惩罚)<br>• 习惯日记时间轴与打卡感悟流<br>• 杂志级打卡海报生成与分享 |
 | **自律圈子** <br>*(Community)* | [`CommunityScreen`](file:///d:/work/gotime/lib/features/social/community_screen.dart) | • **独立列**：双人同盟专属密令结对<br>• 双轨打卡进度对比 (直观查看彼此坚守)<br>• 4 项隔空温情互动（碰拳 / 加油 / 送水 / 拥抱）<br>• 圈子留言板与时光印记动态流<br>• 离线善意共鸣信箱卡片与自律勋章殿堂快捷通道 |
 | **系统设置** <br>*(Settings)* | [`SettingsScreen`](file:///d:/work/gotime/lib/features/settings/settings_screen.dart) | • **独立列**：全局深浅主题与品牌主色调引擎<br>• 桌面小组件工坊 (2x2 / 4x2 尺寸样式预览)<br>• watchOS & Wear OS 智能手表独立微端仿真<br>• 生物识别 FaceID/指纹与 4 位 PIN 隐私安全锁<br>• 正念防沉迷呼吸冷却护盾 (`MindfulShield`)<br>• Apple Health & Android Health Connect 步数打通<br>• 多语言国际化 (简中 / 繁中 / 英文 / 日文)<br>• 本地 JSON/CSV 导入导出与 WebDAV 私有云同步<br>• **隐私政策与合规声明 (`PrivacyPolicyDialog`)**<br>• 苹果 Guideline 5.1.1 合规一键物理销毁粉碎数据 |
@@ -77,7 +77,7 @@ test/                            # 自动化测试套件 (110 项测试 100% PAS
 - **开发框架**：Flutter 3.x / Dart 3.x
 - **测试保证**：
   ```bash
-  flutter test                    # 110 / 110 全项测试通过
+  flutter test                    # 115 / 115 全项测试通过
   flutter analyze --no-fatal-infos # 0 issues found (代码规范零警告)
   ```
 

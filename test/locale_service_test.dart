@@ -21,6 +21,7 @@ void main() {
 
       expect(service.t('tab_habits'), equals('Today'));
       expect(service.t('tab_stats'), equals('Insights'));
+      expect(service.t('tab_community'), equals('Community'));
       expect(service.t('tab_settings'), equals('Settings'));
       expect(service.t('btn_create_habit'), equals('New Habit'));
     });
@@ -32,6 +33,7 @@ void main() {
 
       expect(service.t('tab_habits'), equals('今日'));
       expect(service.t('tab_stats'), equals('統計'));
+      expect(service.t('tab_community'), equals('サークル'));
       expect(service.t('tab_settings'), equals('設定'));
     });
 
@@ -43,6 +45,7 @@ void main() {
 
       expect(service.t('tab_habits'), equals('今日習慣'));
       expect(service.t('tab_stats'), equals('數據洞察'));
+      expect(service.t('tab_community'), equals('自律圈子'));
     });
 
     test('Unknown keys fallback gracefully to key itself', () {

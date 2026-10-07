@@ -10,7 +10,8 @@ import 'core/theme/app_theme.dart';
 import 'features/common/privacy_lock_overlay.dart';
 import 'features/home/home_screen.dart';
 import 'features/stats/stats_screen.dart';
-import 'features/social/social_screen.dart';
+import 'features/social/community_screen.dart';
+import 'features/settings/settings_screen.dart';
 
 void main() {
   if (kIsWeb) {
@@ -59,7 +60,8 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const StatsScreen(),
-    const SocialScreen(),
+    const CommunityScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -70,6 +72,7 @@ class _MainLayoutState extends State<MainLayout> {
         children: _screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -80,15 +83,23 @@ class _MainLayoutState extends State<MainLayout> {
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.home_filled),
+            icon: const Icon(Icons.check_circle_outline_rounded),
+            activeIcon: const Icon(Icons.check_circle_rounded),
             label: LocaleService.instance.t('tab_habits'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.bar_chart),
+            icon: const Icon(Icons.insights_outlined),
+            activeIcon: const Icon(Icons.insights_rounded),
             label: LocaleService.instance.t('tab_stats'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.people_alt),
+            icon: const Icon(Icons.groups_outlined),
+            activeIcon: const Icon(Icons.groups_rounded),
+            label: LocaleService.instance.t('tab_community'),
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.tune_outlined),
+            activeIcon: const Icon(Icons.tune_rounded),
             label: LocaleService.instance.t('tab_settings'),
           ),
         ],

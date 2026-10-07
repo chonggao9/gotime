@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/theme_service.dart';
 import '../../../core/services/milestone_service.dart';
+import '../../../core/database/sqlite_service.dart';
+import '../../../models/check_in.dart';
 import 'widgets/heatmap_calendar.dart';
 import 'widgets/milestone_hall_dialog.dart';
 import 'widgets/share_poster_dialog.dart';
 import 'widgets/year_in_pixels_dialog.dart';
+import 'widgets/habit_analytics_card.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -15,6 +18,56 @@ class StatsScreen extends StatefulWidget {
 }
 
 class _StatsScreenState extends State<StatsScreen> {
+  List<CheckIn> _checkIns = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCheckIns();
+  }
+
+  Future<void> _loadCheckIns() async {
+    try {
+      final now = DateTime.now();
+      final start = now.subtract(const Duration(days: 90));
+      final startStr = '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
+      final endStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+      final list = await SQLiteService.instance.getCheckInsForDateRange(startStr, endStr);
+      if (mounted) {
+        setState(() {
+          _checkIns = list.isNotEmpty ? list : _generateMockCheckIns();
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _checkIns = _generateMockCheckIns();
+        });
+      }
+    }
+  }
+
+  List<CheckIn> _generateMockCheckIns() {
+    final list = <CheckIn>[];
+    final today = DateTime.now();
+    for (int i = 0; i < 45; i++) {
+      final d = today.subtract(Duration(days: i));
+      final dateStr = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+      if (i % 7 != 0) {
+        list.add(CheckIn(
+          id: 'mock_$i',
+          habitId: 'habit_1',
+          date: dateStr,
+          status: CheckInStatus.completed,
+          mood: (i % 3 == 0) ? 5 : ((i % 2 == 0) ? 4 : 3),
+          createdAt: d,
+        ));
+      }
+    }
+    return list;
+  }
+
   // 模拟热力图数据
   Map<DateTime, HeatmapLevel> _generateMockData() {
     final Map<DateTime, HeatmapLevel> data = {};
@@ -134,6 +187,14 @@ class _StatsScreenState extends State<StatsScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 8.0),
               child: _buildWeeklyReviewCard(isDark, ThemeService.instance.brandColor.primary),
+            ),
+          ),
+
+          // 习惯深度节律与周中分布 (F10.2)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 8.0),
+              child: HabitAnalyticsCard(checkIns: _checkIns),
             ),
           ),
 

@@ -194,6 +194,22 @@
   - **描述**：允许用户打破固定创建时间限制，在首页一键开启自定义排序模式，通过触感手柄自由拖拽重排习惯次序。与置顶（Pin）机制无缝融合（置顶习惯优先置顶，其余项严格尊崇自定义编排节律），并提供一键恢复默认。
   - **落地交付**：实现 `HabitOrderService`、首页 `SliverReorderableList` 拖拽交互与状态持久化监听，通过自动化单元测试全覆盖。
 
+---
+
+## 阶段十：日常仪式心流引导与深度周中节律透视 (Phase 10: Guided Routine Flow & Weekly Rhythm Analytics)
+
+- [x] **F10.1 习惯晨间/晚间心流仪式引导播放流 (Guided Daily Routine Flow)** `[P0]`
+  - **灵感**：*Fabulous / Routinery / Atomic Habits Habit Chaining*
+  - **核心准则**：**将离散的单点习惯串联为连贯的日常仪式，伴随白噪音专注与无痛闭环**。
+  - **描述**：打破单个习惯孤立打卡的枯燥感，支持一键开启“晨间唤醒流”或“晚间静心仪式”。全屏沉浸式步骤播放器依次引导完成各个时段习惯，提供当前步骤时长指示、48kHz 高保真背景白噪音伴奏、触感震动反馈，打卡后自动推进至下一环节，最后生成仪式达成温情小结。
+  - **落地交付**：实现 `RoutineService`、首页时段过滤栏心流启动胶囊、`RoutinePlaySheet` 沉浸式心流引导面板与环境声动态联动，并通过单元测试验证。
+
+- [x] **F10.2 习惯深度节律、周中完成率分布与情绪相关性分析 (Weekly Rhythms & Mood Correlation Insights)** `[P1]`
+  - **灵感**：*Loop Habit Tracker (uhabits) History & Day-of-Week Distribution / Exist.io*
+  - **描述**：在数据洞察页深入解析用户的生物钟节律与周中表现趋势（周一至周日 7 根自适应高度胶囊柱，自动标驻巅峰心流日 👑）。结合打卡心情 Emoji（1~5 档），计算平均情绪均值，输出基于心理学模型的自我关怀温情寄语，破除机械的自我苛责。
+  - **落地交付**：实现 `HabitAnalyticsService` 计算引擎、`HabitAnalyticsCard` 深度分析卡片，深度嵌入 `StatsScreen`，并通过自动化单元测试全覆盖。
+
+
 
 
 

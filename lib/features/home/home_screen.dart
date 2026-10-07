@@ -13,6 +13,7 @@ import 'widgets/log_habit_sheet.dart';
 import 'widgets/habit_action_sheet.dart';
 import 'widgets/confetti_overlay.dart';
 import 'widgets/archived_habits_sheet.dart';
+import 'widgets/routine_play_sheet.dart';
 import '../stats/widgets/share_poster_dialog.dart';
 import 'package:uuid/uuid.dart';
 
@@ -448,7 +449,8 @@ class _HomeScreenState extends State<HomeScreen> {
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Row(
-        children: slots.map((slot) {
+        children: [
+          ...slots.map((slot) {
           final isSelected = _selectedTimeSlot == slot['key'];
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -478,10 +480,53 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           );
-        }).toList(),
-      ),
-    );
-  }
+        }),
+        Padding(
+          padding: const EdgeInsets.only(left: 4.0),
+          child: ActionChip(
+            avatar: const Text('▶️', style: TextStyle(fontSize: 12)),
+            label: Text(
+              _selectedTimeSlot == 'morning'
+                  ? '开启晨间心流'
+                  : (_selectedTimeSlot == 'evening' ? '开启晚间仪式' : '开启心流仪式'),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.mintGreen,
+              ),
+            ),
+            backgroundColor: AppTheme.mintGreen.withValues(alpha: 0.12),
+            side: BorderSide(color: AppTheme.mintGreen.withValues(alpha: 0.3)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              final candidates = _filteredHabits;
+              if (candidates.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('当前时段暂无待办习惯，先添加一个吧 🌱')),
+                );
+                return;
+              }
+              final title = _selectedTimeSlot == 'morning'
+                  ? '晨间心流仪式'
+                  : (_selectedTimeSlot == 'evening' ? '晚间安眠仪式' : '日常心流仪式');
+              RoutinePlaySheet.show(
+                context,
+                habits: candidates,
+                title: title,
+                onHabitCompleted: (h) async {
+                  if (!_completedHabitIds.contains(h.id)) {
+                    await _toggleHabit(h);
+                  }
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

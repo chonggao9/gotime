@@ -144,7 +144,7 @@ class BuddyService extends ChangeNotifier {
     );
   }
 
-  /// 使用口令结对绑定
+  /// 口令结对
   bool pairWithCode(String code, {String? nickname}) {
     final cleanCode = code.trim().toUpperCase();
     if (cleanCode.isEmpty) return false;
@@ -178,7 +178,7 @@ class BuddyService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 发送互动消息 (戳一戳/击掌/免责卡/鼓励)
+  /// 发送互动消息
   void sendInteraction(BuddyInteractionType type, {String? customMessage}) {
     if (_buddy == null) return;
 
@@ -197,7 +197,7 @@ class BuddyService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 计算当前用户本周（周一至周日）打卡天数
+  /// 计算本周打卡天数
   int calculateMyWeeklyDays(List<CheckIn> checkIns) {
     if (checkIns.isEmpty) return 0;
     final now = DateTime.now();

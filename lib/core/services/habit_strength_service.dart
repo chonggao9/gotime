@@ -1,18 +1,12 @@
 import '../../models/check_in.dart';
 
-/// 习惯强度与动量计算服务 (基于指数平滑算法 Exponential Smoothing)
-/// 灵感来源：开源 Loop Habit Tracker (iSoron/uhabits) 与《原子习惯》
-/// 核心理念：抗焦虑。漏打一天仅轻微衰减，次日继续可快速回升，拒绝断签归零挫败感。
+/// 习惯强度计算服务（指数平滑）
 class HabitStrengthService {
-  /// 衰减平滑系数 (Alpha)，默认 0.94
-  /// 相当于习惯半衰期约为 11~14 天
-  static const double defaultAlpha = 0.94;
+  /// 平滑衰减系数，默认 0.94
+    static const double defaultAlpha = 0.94;
 
-  /// 计算单个习惯的历史强度分数 (0.0 ~ 1.0)
-  /// [checkIns]: 针对该习惯的历史所有打卡记录
-  /// [asOfDate]: 截止计算日期，默认今天
-  /// [days]: 回溯历史天数，默认 60 天
-  static double calculateStrength(
+  /// 计算习惯强度分数 (0.0~1.0)
+        static double calculateStrength(
     List<CheckIn> checkIns, {
     DateTime? asOfDate,
     int days = 60,
@@ -59,7 +53,7 @@ class HabitStrengthService {
     return score;
   }
 
-  /// 计算习惯当前连胜天数（特别考虑休假/请假冻结不中断原则）
+  /// 计算连胜天数（休假不中断）
   static int calculateStreak(List<CheckIn> checkIns, {DateTime? asOfDate}) {
     if (checkIns.isEmpty) return 0;
 
@@ -99,7 +93,7 @@ class HabitStrengthService {
     return streak;
   }
 
-  /// 习惯强度级别文案（符合经典 21 天习惯成型模型）
+  /// 习惯强度等级文案
   static String getStrengthLabel(double strength) {
     if (strength >= 0.80) return '💎 磐石阶段';
     if (strength >= 0.50) return '🌿 稳步成型';
@@ -107,7 +101,7 @@ class HabitStrengthService {
     return '🌰 播种起步';
   }
 
-  /// 习惯强度心理抚慰文案
+  /// 习惯强度说明文案
   static String getStrengthTip(double strength) {
     if (strength >= 0.80) {
       return '这个习惯已深深烙印在你的潜意识中，即使偶尔暂停一天也能轻松回归。';

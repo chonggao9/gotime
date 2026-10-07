@@ -256,7 +256,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     );
   }
 
-  /// 习惯强度分析卡片 (源自 Loop Habit Tracker 指数平滑模型)
+  /// 习惯强度分析卡片
   Widget _buildStrengthCard(bool isDark, Color themeColor) {
     final label = HabitStrengthService.getStrengthLabel(_habitStrength);
     final tip = HabitStrengthService.getStrengthTip(_habitStrength);

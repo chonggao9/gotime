@@ -63,7 +63,7 @@ class ReminderService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 检查当前时间是否位于静音免打扰时段内
+  /// 是否处于免打扰时段
   bool isInQuietHours(DateTime now) {
     if (!_isQuietHoursEnabled) return false;
 
@@ -79,7 +79,7 @@ class ReminderService extends ChangeNotifier {
     }
   }
 
-  /// 模拟触发一次自律提醒
+  /// 模拟触发提醒
   String getNextScheduledSummary() {
     final activeSlots = <String>[];
     if (_isMorningEnabled) activeSlots.add('晨间 ${formatTime(_morningTime)}');

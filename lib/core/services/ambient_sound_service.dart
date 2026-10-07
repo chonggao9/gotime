@@ -74,7 +74,7 @@ enum AmbientSoundType {
   }
 }
 
-/// 跨平台高保真离线白噪音服务 (绝无合成算法震荡器，全母带实录)
+/// 白噪音播放服务
 class AmbientSoundService extends ChangeNotifier {
   AmbientSoundService._();
   static final AmbientSoundService instance = AmbientSoundService._();
@@ -89,7 +89,7 @@ class AmbientSoundService extends ChangeNotifier {
   double get volume => _volume;
   bool get isPlaying => _isPlaying;
 
-  /// 切换背景音
+  /// 切换白噪音
   void setSound(AmbientSoundType type) {
     if (_currentSound == type) {
       if (_isPlaying) {
@@ -137,7 +137,7 @@ class AmbientSoundService extends ChangeNotifier {
     }
   }
 
-  /// 专注完成时的清脆颂钵禅鸣 (纯天然青铜颂钵实录)
+  /// 完成时播放颂钵提示音
   void playCompletionChime() {
     final chimeUrl = kIsWeb ? 'sounds/bowl.mp3' : 'assets/audio/bowl.mp3';
     _player.playChime(chimeUrl, volume: (_volume * 1.2).clamp(0.0, 1.0));

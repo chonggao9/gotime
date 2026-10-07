@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
-/// 网页端高保真音频离线循环播放器
+/// 网页端音频播放器
 class PlatformAudioPlayer {
   html.AudioElement? _currentAudio;
   html.AudioElement? _chimeAudio;

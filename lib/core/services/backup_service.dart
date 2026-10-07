@@ -3,11 +3,9 @@ import '../database/sqlite_service.dart';
 import '../../models/habit.dart';
 import '../../models/check_in.dart';
 
-/// 本地优先数据备份与导出服务 (Local-First Backup & Export Service)
-/// 灵感来源：开源项目 FriesI23/mhabit 与 Loop Habit Tracker
-/// 支持标准 JSON 全量备份与 CSV 电子表格分析导出
+/// 数据备份与导出服务
 class BackupService {
-  /// 生成全量 JSON 备份文本
+  /// 生成 JSON 备份
   static String exportToJson({
     required List<Habit> habits,
     required List<CheckIn> checkIns,
@@ -26,7 +24,7 @@ class BackupService {
     return encoder.convert(backupData);
   }
 
-  /// 导出为符合 RFC 4180 标准的 CSV 电子表格文本（方便 Excel / Notion 分析）
+  /// 导出 CSV
   static String exportToCsv({
     required List<Habit> habits,
     required List<CheckIn> checkIns,
@@ -65,7 +63,7 @@ class BackupService {
     return csv.toString();
   }
 
-  /// 校验并解析 JSON 备份文件内容
+  /// 校验并解析 JSON
   static Map<String, dynamic>? validateAndParseJson(String jsonString) {
     try {
       final dynamic parsed = jsonDecode(jsonString);
@@ -88,7 +86,7 @@ class BackupService {
     }
   }
 
-  /// 从数据库提取并生成全量 JSON 备份文本
+  /// 生成 JSON 备份
   static Future<String> exportToJsonString() async {
     final habits = await SQLiteService.instance.getAllActiveHabits();
     final archived = await SQLiteService.instance.getArchivedHabits();
@@ -97,7 +95,7 @@ class BackupService {
     return exportToJson(habits: allHabits, checkIns: checkIns);
   }
 
-  /// 导入并恢复 JSON 数据入库
+  /// 导入并恢复数据
   static Future<bool> importFromJsonString(String jsonString) async {
     final parsed = validateAndParseJson(jsonString);
     if (parsed == null) return false;

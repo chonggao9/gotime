@@ -15,7 +15,7 @@ class HabitOrderService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 依据置顶状态与用户自定义拖拽顺序对习惯列表进行排序
+  /// 对习惯列表排序（置顶优先）
   List<Habit> sortHabits(List<Habit> habits) {
     if (habits.isEmpty) return habits;
 
@@ -44,7 +44,7 @@ class HabitOrderService extends ChangeNotifier {
     return sorted;
   }
 
-  /// 处理拖拽重排 (兼容 ReorderableListView 的 oldIndex/newIndex 逻辑)
+  /// 处理拖拽重排
   List<Habit> handleReorder(List<Habit> currentList, int oldIndex, int newIndex) {
     final list = List<Habit>.from(currentList);
     if (oldIndex < newIndex) {

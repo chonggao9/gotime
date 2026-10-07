@@ -30,14 +30,14 @@ class HabitAnalyticsReport {
   });
 }
 
-/// 习惯深度节律、周中完成率分布与情绪相关性分析服务
+/// 习惯节律与情绪分析服务
 class HabitAnalyticsService {
   HabitAnalyticsService._();
   static final HabitAnalyticsService instance = HabitAnalyticsService._();
 
   static const List<String> weekdayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
-  /// 分析周一到周日的打卡完成分布及情绪关联
+  /// 分析周中打卡分布与情绪关联
   HabitAnalyticsReport analyzeCheckIns(List<CheckIn> checkIns) {
     final counts = <int, int>{1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0};
     final moodValues = <int>[];

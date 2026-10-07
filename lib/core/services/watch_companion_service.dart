@@ -14,7 +14,7 @@ enum WatchFormFactor {
   const WatchFormFactor({required this.name, required this.bezelRadius});
 }
 
-/// 智能手表微端与表盘插件服务 (watchOS & Wear OS Companion)
+/// 智能手表伴侣服务
 class WatchCompanionService extends ChangeNotifier {
   WatchCompanionService._();
   static final WatchCompanionService instance = WatchCompanionService._();
@@ -37,7 +37,7 @@ class WatchCompanionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 筛选同步到智能手表的微习惯（置顶优先，最多 4 个）
+  /// 筛选同步到手表的习惯（最多 4 个）
   List<Habit> getWatchHabits(List<Habit> allHabits) {
     final active = allHabits.where((h) => !h.isArchived).toList();
     active.sort((a, b) {
@@ -52,7 +52,7 @@ class WatchCompanionService extends ChangeNotifier {
     return _todayWatchCompletedIds.contains(habitId);
   }
 
-  /// 手表端即时打卡切换
+  /// 手表端打卡切换
   Future<bool> toggleWatchCheckIn(Habit habit, {String? dateStr}) async {
     final date = dateStr ?? DateTime.now().toIso8601String().split('T')[0];
     final isDone = _todayWatchCompletedIds.contains(habit.id);

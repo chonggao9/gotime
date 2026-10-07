@@ -16,12 +16,12 @@ class ParsedCheckInIntent {
   });
 }
 
-/// 自然语言文本/语音速记极速打卡解析服务 (Offline Natural Language Quick Logger)
+/// 自然语言速记解析服务
 class QuickNaturalLoggerService {
   QuickNaturalLoggerService._();
   static final QuickNaturalLoggerService instance = QuickNaturalLoggerService._();
 
-  /// 解析用户输入的速记文本并匹配现有习惯
+  /// 解析速记文本，匹配习惯
   List<ParsedCheckInIntent> parseText(String input, List<Habit> habits) {
     if (input.trim().isEmpty || habits.isEmpty) return [];
 

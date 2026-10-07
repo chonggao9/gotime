@@ -39,21 +39,21 @@ class QuitHabitProgress {
     this.history = const [],
   });
 
-  /// 距离最后一次破戒（或起始时间）的净坚持天数
+  /// 已坚持天数
   int get daysClean {
     final reference = lastRelapseAt ?? startedAt;
     final diff = DateTime.now().difference(reference);
     return diff.inDays >= 0 ? diff.inDays : 0;
   }
 
-  /// 净坚持小时数（不足1天的剩余小时）
+  /// 剩余小时数
   int get hoursCleanRemainder {
     final reference = lastRelapseAt ?? startedAt;
     final diff = DateTime.now().difference(reference);
     return (diff.inHours % 24);
   }
 
-  /// 人性化描述，例如 "已坚持 14 天 6 小时" 或 "已坚持 8 小时"
+  /// 已坚持时长描述
   String get formattedCleanDuration {
     final days = daysClean;
     final hours = hoursCleanRemainder;
@@ -64,7 +64,7 @@ class QuitHabitProgress {
   }
 }
 
-/// 坏习惯戒除管理与防复发急救冲浪服务
+/// 坏习惯戒除服务
 class QuitHabitService extends ChangeNotifier {
   QuitHabitService._();
   static final QuitHabitService instance = QuitHabitService._();
@@ -82,7 +82,7 @@ class QuitHabitService extends ChangeNotifier {
     return _cache[habitId]!;
   }
 
-  /// 记录一次破戒（复盘模式：包容、不指责，重置当前计时）
+  /// 记录一次破戒，重置计时
   void recordRelapse(
     String habitId, {
     String trigger = '压力与情绪波动',
@@ -116,7 +116,7 @@ class QuitHabitService extends ChangeNotifier {
     recordRelapse(habitId, trigger: '自我重启', note: '从头再来，允许不完美');
   }
 
-  /// 设置自定义起始时间（用于以前就已经开始戒除的情况）
+  /// 设置自定义起始时间
   void setCustomStartDate(String habitId, DateTime customStartDate) {
     _cache[habitId] = QuitHabitProgress(
       habitId: habitId,

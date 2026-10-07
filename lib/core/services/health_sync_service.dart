@@ -34,7 +34,7 @@ class HealthSyncResult {
   });
 }
 
-/// 智能健康中心 (Apple Health / Health Connect) 数据同步与自动打卡服务
+/// 健康数据同步与自动打卡服务
 class HealthSyncService extends ChangeNotifier {
   HealthSyncService._();
   static final HealthSyncService instance = HealthSyncService._();
@@ -60,7 +60,7 @@ class HealthSyncService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 检查并自动为绑定的习惯执行健康达标打卡
+  /// 健康达标自动打卡
   Future<List<HealthSyncResult>> checkAndAutoCheckIn(List<Habit> activeHabits) async {
     final results = <HealthSyncResult>[];
     _lastSyncTime = DateTime.now();

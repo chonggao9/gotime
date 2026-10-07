@@ -15,24 +15,24 @@ class WeeklyProgress {
   });
 }
 
-/// 灵活周期打卡频次计算服务 (支持每周 X 次、指定工作日等调度)
+/// 弹性打卡周期计算服务
 class FrequencyService {
   FrequencyService._();
   static final FrequencyService instance = FrequencyService._();
 
-  /// 获取指定日期所在周的周一 00:00:00
+  /// 获取周一 00:00:00
   DateTime getStartOfWeek(DateTime date) {
     final start = date.subtract(Duration(days: date.weekday - 1));
     return DateTime(start.year, start.month, start.day);
   }
 
-  /// 获取指定日期所在周的周日 23:59:59
+  /// 获取周日 23:59:59
   DateTime getEndOfWeek(DateTime date) {
     final end = getStartOfWeek(date).add(const Duration(days: 6));
     return DateTime(end.year, end.month, end.day, 23, 59, 59);
   }
 
-  /// 计算习惯在当前周的实际完成次数与目标
+  /// 计算本周完成次数
   WeeklyProgress calculateWeeklyProgress(
     Habit habit,
     List<CheckIn> checkIns, {
@@ -75,7 +75,7 @@ class FrequencyService {
     );
   }
 
-  /// 判断指定日期是否应当打卡该习惯
+  /// 判断指定日期是否需要打卡
   bool isScheduledForDate(Habit habit, DateTime date) {
     final type = habit.frequencyType;
     if (type == 'daily' || type == 'everyday') {

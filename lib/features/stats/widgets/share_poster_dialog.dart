@@ -4,8 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
 
-/// 杂志级极简打卡分享海报弹窗 (Aesthetic Share Poster)
-/// 支持使用 RepaintBoundary 渲染高清晰度海报并提供保存与分享操作
+/// 打卡分享海报弹窗
 class SharePosterDialog extends StatefulWidget {
   final int streakDays;
   final int strengthPercent;

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// 隐私安全锁服务 (FaceID / 指纹 / PIN 码防护)
+/// 隐私安全锁服务
 class PrivacyLockService extends ChangeNotifier {
   PrivacyLockService._();
   static final PrivacyLockService instance = PrivacyLockService._();

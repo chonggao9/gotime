@@ -42,7 +42,7 @@ class WebDavSyncResult {
   });
 }
 
-/// 纯 Dart 轻量 WebDAV 同步服务 (支持坚果云、Nextcloud、群晖等私有云)
+/// WebDAV 同步服务
 class WebDavService {
   WebDavService._();
   static final WebDavService instance = WebDavService._();
@@ -75,7 +75,7 @@ class WebDavService {
     return '$base$cleanPath';
   }
 
-  /// 测试 WebDAV 服务器连接凭据有效性
+  /// 测试 WebDAV 连接
   Future<WebDavSyncResult> testConnection(WebDavConfig config) async {
     try {
       final url = Uri.parse(_getFullUrl(config.serverUrl, ''));
@@ -122,7 +122,7 @@ class WebDavService {
     }
   }
 
-  /// 上传全量备份到 WebDAV
+  /// 上传备份到 WebDAV
   Future<WebDavSyncResult> uploadBackup() async {
     if (_config == null || _config!.serverUrl.isEmpty) {
       return WebDavSyncResult(
@@ -171,7 +171,7 @@ class WebDavService {
     }
   }
 
-  /// 从 WebDAV 拉取远端备份并恢复
+  /// 从 WebDAV 拉取并恢复
   Future<WebDavSyncResult> downloadAndRestore() async {
     if (_config == null || _config!.serverUrl.isEmpty) {
       return WebDavSyncResult(

@@ -28,8 +28,7 @@ class UrgeLog {
   );
 }
 
-/// 正念自律屏障与数字极简防沉迷盾牌服务 (Mindful Shield & Anti-Distraction Service)
-/// 核心准则：在冲动与反应之间插入正念缓冲，化被动诱惑为主观战胜。
+/// 防沉迷呼吸屏障服务
 class MindfulShieldService extends ChangeNotifier {
   MindfulShieldService._();
   static final MindfulShieldService instance = MindfulShieldService._();
@@ -68,7 +67,7 @@ class MindfulShieldService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 战胜分心冲动并记录
+  /// 记录战胜冲动
   void recordUrgeOvercome({String trigger = '无意识抓取手机', int calmSeconds = 15}) {
     _todayOvercomeCount++;
     _urgeLogs.insert(

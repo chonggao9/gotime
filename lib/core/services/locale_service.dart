@@ -18,7 +18,7 @@ enum AppLanguage {
   });
 }
 
-/// 多语言国际化引擎服务 (i18n Localization Service)
+/// 多语言服务
 class LocaleService extends ChangeNotifier {
   LocaleService._();
   static final LocaleService instance = LocaleService._();
@@ -40,7 +40,7 @@ class LocaleService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 获取本地化文本
+  /// 获取翻译文本
   String t(String key) {
     final lang = _currentLanguage;
     final dict = _translations[key];

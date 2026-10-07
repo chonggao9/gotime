@@ -18,7 +18,7 @@ class SyncDevice {
   });
 }
 
-/// 云端多端同步与跨设备账户合库桥接服务 (Cloud Sync & Multi-Device Sync Bridge)
+/// 云端多端同步服务
 class CloudSyncService extends ChangeNotifier {
   CloudSyncService._() {
     _initDefaultState();
@@ -98,7 +98,7 @@ class CloudSyncService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 触发多端增量合并同步 (Last-Write-Wins 无损合库)
+  /// 触发增量合并同步
   Future<bool> performCloudSync() async {
     if (!_isEnabled) return false;
 

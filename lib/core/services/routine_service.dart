@@ -16,7 +16,7 @@ class RoutineStep {
   });
 }
 
-/// 习惯日常仪式与心流引导编排服务 (Morning / Evening Routine Flow)
+/// 习惯仪式引导服务
 class RoutineService extends ChangeNotifier {
   RoutineService._();
   static final RoutineService instance = RoutineService._();
@@ -83,7 +83,7 @@ class RoutineService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 标记当前习惯完成并自动进入下一步
+  /// 完成当前步骤并跳转下一步
   bool completeCurrentStep() {
     if (currentStep == null) return false;
 

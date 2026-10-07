@@ -49,8 +49,7 @@ class KindnessNote {
   );
 }
 
-/// 离线善意共鸣信箱与温情打气便签服务 (Kindness Mailbox & Peer Resonance)
-/// 核心准则：普遍人性与自我关怀。打破自律中的孤独感与挫败感，通过温情文字重聚动量。
+/// 善意信箱服务
 class KindnessMailboxService extends ChangeNotifier {
   KindnessMailboxService._() {
     _initDefaultNotes();
@@ -120,7 +119,7 @@ class KindnessMailboxService extends ChangeNotifier {
     ]);
   }
 
-  /// 从信箱随机抽取一张温情打气便签
+  /// 随机抽取鼓励便签
   KindnessNote drawRandomNote({String? filterCategory}) {
     List<KindnessNote> pool = _notes;
     if (filterCategory != null && filterCategory != '全部') {
@@ -135,7 +134,7 @@ class KindnessMailboxService extends ChangeNotifier {
     return picked;
   }
 
-  /// 为便签送上温暖拥抱（点赞与点亮）
+  /// 为便签点赞
   void toggleLikeNote(String noteId) {
     final index = _notes.indexWhere((n) => n.id == noteId);
     if (index != -1) {
@@ -154,7 +153,7 @@ class KindnessMailboxService extends ChangeNotifier {
     }
   }
 
-  /// 用户向善意信箱投递一张自己书写的鼓励便签
+  /// 投递鼓励便签
   KindnessNote writeNote({
     required String content,
     required String authorTag,

@@ -35,12 +35,12 @@ class AnnualStats {
   });
 }
 
-/// 年度像素画卷与色彩足迹计算服务 (Year in Pixels)
+/// 年度像素年鉴服务
 class YearInPixelsService {
   YearInPixelsService._();
   static final YearInPixelsService instance = YearInPixelsService._();
 
-  /// 依据打卡数据计算某一天的像素色彩
+  /// 计算某天的像素颜色
   Color calculatePixelColor({
     required double ratio,
     required bool isSkipped,
@@ -64,7 +64,7 @@ class YearInPixelsService {
     return isDark ? const Color(0xFF262626) : const Color(0xFFE5E7EB); // 休息空白日
   }
 
-  /// 构建指定年份（默认当前年份）的 12 个月像素数据阵列
+  /// 构建全年像素数据
   Map<int, List<PixelDay>> generateYearGrid({
     int? year,
     required List<CheckIn> checkIns,
@@ -121,7 +121,7 @@ class YearInPixelsService {
     return grid;
   }
 
-  /// 计算全年度汇总指标
+  /// 计算全年汇总指标
   AnnualStats calculateAnnualStats(Map<int, List<PixelDay>> grid) {
     int totalLogged = 0;
     int fullyDone = 0;

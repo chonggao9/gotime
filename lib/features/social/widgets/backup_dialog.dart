@@ -6,7 +6,7 @@ import '../../../core/database/sqlite_service.dart';
 import '../../../models/habit.dart';
 import '../../../models/check_in.dart';
 
-/// 本地优先数据导入导出与备份对话框 (Local Data Backup & Export Dialog)
+/// 数据备份与导出对话框
 class BackupDialog extends StatefulWidget {
   final bool isExportCsv;
 

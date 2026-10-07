@@ -64,8 +64,7 @@ class GardenPlant {
   String get displayEmoji => stage == GrowthStage.blooming ? plantType.icon : stage.emoji;
 }
 
-/// 习惯心流疗愈微缩花园服务 (Healing Habit Garden Ecosystem)
-/// 核心准则：拒绝死亡惩罚与枯萎！专注培育与滋养，休眠即是自愈。
+/// 习惯疗愈花园服务
 class GardenPlantService extends ChangeNotifier {
   GardenPlantService._();
   static final GardenPlantService instance = GardenPlantService._();
@@ -85,7 +84,7 @@ class GardenPlantService extends ChangeNotifier {
   int get bloomingPlantCount =>
       _plants.values.where((p) => p.stage == GrowthStage.blooming).length;
 
-  /// 根据习惯同步花园植物群落
+  /// 同步花园植物
   void syncFromHabits({
     required List<Habit> habits,
     required Set<String> completedHabitIds,
@@ -124,7 +123,7 @@ class GardenPlantService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 为指定习惯绿植浇水充能
+  /// 为习惯植物浇水
   GardenPlant? waterPlant(String habitId) {
     final plant = _plants[habitId];
     if (plant == null) return null;

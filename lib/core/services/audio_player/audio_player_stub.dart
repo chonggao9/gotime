@@ -1,4 +1,4 @@
-/// 平台音频播放器接口存根 (用于 Dart VM / 单元测试环境)
+/// 音频播放器接口存根（测试用）
 class PlatformAudioPlayer {
   void play(String url, {bool loop = true, double volume = 0.6}) {}
   void stop() {}

@@ -18,7 +18,7 @@ class MixerPreset {
   });
 }
 
-/// 48kHz 高保真多轨母带环境白噪音混音台服务 (Multi-Track Hi-Fi Soundscape Mixer)
+/// 多轨白噪音混音台服务
 class MultiTrackMixerService extends ChangeNotifier {
   MultiTrackMixerService._() {
     _initPlayers();

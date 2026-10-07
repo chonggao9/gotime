@@ -118,5 +118,19 @@
 
 - [ ] **F5.3 智能手表 Wear OS / watchOS 独立微端打卡 (Watch Extension)** `[P3]`
 
+---
+
+## 阶段六：弹性度量与正向成就反馈 (Phase 6: Flexible Cadence & Trophy Hall)
+
+- [x] **F6.1 灵活周期与弹性打卡频次调度 (Flexible Frequency: X Times Per Week / Days)** `[P1]`
+  - **灵感**：*Loop Habit Tracker (uhabits)*, *Everyday*
+  - **描述**：打破“必须每日打卡”的机械焦虑。支持创建习惯时选择“每日打卡”、“每周弹性 X 次 (1~6次)”或“指定工作日/周末”，计算周历（自然周）完成进度与达成率。
+  - **落地交付**：在 `Habit` 模型增加 `frequencySummary`、`targetTimesPerPeriod` 与 `targetDaysOfWeek`；在 `CreateHabitSheet` 实现多模式周期选择器与步进器；在 `HabitCard` 渲染专属弹性周期胶囊徽章；实现 `FrequencyService` 及其周跨度调度算法与单元测试。
+
+- [x] **F6.2 习惯里程碑成就与自律勋章殿堂 (Milestone Badges & Trophy Hall)** `[P1]`
+  - **灵感**：*Habitica*, *Apple Fitness Badges*
+  - **描述**：构建多维成就勋章体系（🌱 萌芽破晓、⚡ 7日破壁、🧱 21日筑基回路、💯 百日自律、🧘 深度心流大师、❄️ 从容自洽休假、🧩 原子堆叠、☁️ 数据主权守护）。
+  - **落地交付**：已实现 `MilestoneService` 动态条件评估引擎；在数据洞察页集成横向勋章动量流；实现 `MilestoneHallDialog` 殿堂弹窗，支持未解锁进度暗态指示、已解锁高亮流光效果与一键杂志级海报分享，并通过单元测试验证。
+
 
 

@@ -36,6 +36,11 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
   String _targetUnit = 'ml';
   int _timerMinutes = 25;
 
+  // 灵活打卡频次设定 (F6.1)
+  String _selectedFreqType = 'daily'; // 'daily', 'flexible_weekly', 'weekly_days'
+  int _weeklyTargetTimes = 3;
+  final List<int> _selectedDaysOfWeek = [1, 3, 5];
+
   final List<String> _emojis = ['🎯', '💧', '📚', '🏃‍♂️', '🧘‍♀️', '🥗', '💻', '💸', '🛌', '🚭'];
   final List<String> _colors = ['#34D399', '#60A5FA', '#F472B6', '#FBBF24', '#A78BFA', '#F87171'];
 
@@ -126,6 +131,15 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
     
     HapticFeedback.mediumImpact();
     
+    final Map<String, dynamic> freqMap;
+    if (_selectedFreqType == 'flexible_weekly') {
+      freqMap = {'type': 'flexible_weekly', 'target_times': _weeklyTargetTimes};
+    } else if (_selectedFreqType == 'weekly_days') {
+      freqMap = {'type': 'weekly_days', 'days': _selectedDaysOfWeek};
+    } else {
+      freqMap = {'type': 'daily'};
+    }
+
     final newHabit = Habit(
       id: const Uuid().v4(),
       name: _nameController.text.trim(),
@@ -135,7 +149,7 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
       targetValue: _selectedType == HabitType.counter ? _targetValue : null,
       targetUnit: _selectedType == HabitType.counter ? _targetUnit : null,
       timerSeconds: _selectedType == HabitType.timer ? _timerMinutes * 60 : null,
-      frequency: {'type': 'daily'},
+      frequency: freqMap,
       timeOfDay: _selectedTimeOfDay,
       stackedAfterHabitId: _selectedStackedHabitId,
       stackedAfterHabitName: _selectedStackedHabitName,
@@ -240,6 +254,12 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
             Text('执行时段', style: _labelStyle(isDark)),
             const SizedBox(height: 12),
             _buildTimeOfDaySelector(isDark),
+            const SizedBox(height: 24),
+
+            // 灵活频次与周期设置 (F6.1)
+            Text('打卡频次', style: _labelStyle(isDark)),
+            const SizedBox(height: 12),
+            _buildFrequencySelector(isDark),
             const SizedBox(height: 24),
 
             // 《原子习惯》习惯堆叠触发器 (F2.3)
@@ -624,5 +644,139 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
       );
     }
     return const SizedBox.shrink();
+  }
+
+  Widget _buildFrequencySelector(bool isDark) {
+    const dayNames = {1: '一', 2: '二', 3: '三', 4: '四', 5: '五', 6: '六', 7: '日'};
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _buildFreqTypeChip('daily', '每日打卡', isDark),
+            const SizedBox(width: 8),
+            _buildFreqTypeChip('flexible_weekly', '每周弹性', isDark),
+            const SizedBox(width: 8),
+            _buildFreqTypeChip('weekly_days', '指定星期', isDark),
+          ],
+        ),
+        if (_selectedFreqType == 'flexible_weekly') ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[100],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '目标频次：每周 $_weeklyTargetTimes 次',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline_rounded),
+                      onPressed: _weeklyTargetTimes > 1
+                          ? () => setState(() => _weeklyTargetTimes--)
+                          : null,
+                    ),
+                    Text('$_weeklyTargetTimes', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline_rounded),
+                      onPressed: _weeklyTargetTimes < 6
+                          ? () => setState(() => _weeklyTargetTimes++)
+                          : null,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+        if (_selectedFreqType == 'weekly_days') ...[
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(7, (index) {
+              final dayIndex = index + 1;
+              final isSelected = _selectedDaysOfWeek.contains(dayIndex);
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    if (isSelected) {
+                      if (_selectedDaysOfWeek.length > 1) {
+                        _selectedDaysOfWeek.remove(dayIndex);
+                      }
+                    } else {
+                      _selectedDaysOfWeek.add(dayIndex);
+                    }
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppTheme.mintGreen : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)),
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    dayNames[dayIndex]!,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildFreqTypeChip(String type, String label, bool isDark) {
+    final isSelected = _selectedFreqType == type;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          setState(() => _selectedFreqType = type);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.mintGreen.withValues(alpha: 0.2) : (isDark ? const Color(0xFF1E1E1E) : Colors.grey[100]),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? AppTheme.mintGreen : Colors.transparent,
+              width: 1.5,
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? AppTheme.mintGreen : (isDark ? Colors.white70 : Colors.black87),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

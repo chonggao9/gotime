@@ -276,6 +276,17 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
                               ),
                             ),
                           ],
+                          if (widget.habit.frequencySummary != '每日打卡') ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              '🗓️ ${widget.habit.frequencySummary}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: isDark ? const Color(0xFF6EE7B7) : const Color(0xFF059669),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

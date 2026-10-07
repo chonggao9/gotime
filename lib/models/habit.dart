@@ -65,6 +65,25 @@ class Habit {
     );
   }
 
+  String get frequencyType => (frequency['type'] as String?) ?? 'daily';
+  int get targetTimesPerPeriod => (frequency['target_times'] as int?) ?? 1;
+  List<int> get targetDaysOfWeek => List<int>.from(frequency['days'] ?? []);
+
+  /// 获取人性化频率文本描述，例如 "每日打卡"、"每周 3 次"、"周一、三、五"
+  String get frequencySummary {
+    final type = frequencyType;
+    if (type == 'daily' || type == 'everyday') return '每日打卡';
+    if (type == 'flexible_weekly') return '每周 $targetTimesPerPeriod 次';
+    if (type == 'flexible_monthly') return '每月 $targetTimesPerPeriod 次';
+    if (type == 'weekly_days') {
+      final days = targetDaysOfWeek;
+      if (days.isEmpty) return '每日打卡';
+      const names = {1: '一', 2: '二', 3: '三', 4: '四', 5: '五', 6: '六', 7: '日'};
+      return '周${days.map((d) => names[d] ?? '$d').join('、')}';
+    }
+    return '自定周期';
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

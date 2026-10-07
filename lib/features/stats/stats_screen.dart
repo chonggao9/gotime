@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/theme_service.dart';
+import '../../../core/services/milestone_service.dart';
 import 'widgets/heatmap_calendar.dart';
+import 'widgets/milestone_hall_dialog.dart';
 import 'widgets/share_poster_dialog.dart';
 
 class StatsScreen extends StatefulWidget {
@@ -130,6 +132,14 @@ class _StatsScreenState extends State<StatsScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 8.0),
               child: _buildWeeklyReviewCard(isDark, ThemeService.instance.brandColor.primary),
+            ),
+          ),
+
+          // 自律成就勋章殿堂 (F6.2)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 8.0),
+              child: _buildMilestonesSection(isDark, ThemeService.instance.brandColor.primary),
             ),
           ),
           
@@ -444,6 +454,123 @@ class _StatsScreenState extends State<StatsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMilestonesSection(bool isDark, Color primaryColor) {
+    final badges = MilestoneService.instance.getBadges(
+      habits: [],
+      checkIns: [],
+      maxStreak: 12,
+      totalFocusMinutes: 135,
+    );
+    final unlockedCount = badges.where((b) => b.isUnlocked).length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '自律成就勋章',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '$unlockedCount/${badges.length}',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: primaryColor),
+                  ),
+                ),
+              ],
+            ),
+            TextButton(
+              onPressed: () => MilestoneHallDialog.show(context, badges: badges),
+              child: const Row(
+                children: [
+                  Text('成就殿堂', style: TextStyle(fontSize: 13)),
+                  Icon(Icons.chevron_right_rounded, size: 16),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 122,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: badges.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final badge = badges[index];
+              return GestureDetector(
+                onTap: () => MilestoneHallDialog.show(context, badges: badges),
+                child: Container(
+                  width: 104,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: badge.isUnlocked
+                          ? badge.badgeColor.withValues(alpha: 0.4)
+                          : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)),
+                    ),
+                    boxShadow: [
+                      if (!isDark)
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(badge.iconEmoji, style: const TextStyle(fontSize: 28)),
+                      const SizedBox(height: 6),
+                      Text(
+                        badge.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: badge.isUnlocked ? (isDark ? Colors.white : Colors.black87) : Colors.grey[500],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        badge.isUnlocked ? '已点亮' : '${badge.currentValue}/${badge.targetValue}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: badge.isUnlocked ? FontWeight.bold : FontWeight.normal,
+                          color: badge.isUnlocked ? badge.badgeColor : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

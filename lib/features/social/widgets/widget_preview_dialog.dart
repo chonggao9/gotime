@@ -59,12 +59,12 @@ class _WidgetPreviewDialogState extends State<WidgetPreviewDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '桌面小组件工坊',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    '桌面小组件',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: 2),
                   Text(
-                    '免打开 App，在手机主屏幕一键点按打卡',
+                    '桌面便捷预览与打卡',
                     style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],

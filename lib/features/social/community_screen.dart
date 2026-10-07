@@ -103,14 +103,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 模块一：专属搭子与双轨对决
+            // 模块一：双人搭子
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '专属双人搭子',
+                  '双人搭子',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : Colors.black87,
                   ),
@@ -121,12 +121,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     BuddyPairingDialog.show(context);
                   },
                   icon: const Icon(Icons.swap_horiz_rounded, size: 16),
-                  label: Text(_buddyService.hasBuddy ? '管理密令' : '密令结对'),
+                  label: Text(_buddyService.hasBuddy ? '管理' : '绑定'),
                   style: TextButton.styleFrom(foregroundColor: AppTheme.mintGreen),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             // 好友对决卡片
             InkWell(
@@ -134,20 +134,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 HapticFeedback.lightImpact();
                 BuddyPairingDialog.show(context);
               },
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(20),
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    if (!isDark)
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 20,
-                        offset: const Offset(0, 4),
-                      ),
-                  ],
+                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,8 +151,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          '🏆 本周全勤对决',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          '本周进度',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           '剩余 $remainingDays 天',
@@ -165,11 +160,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     // 我的进度
                     _buildComparisonTrack(
-                      name: '我 (自律先行者)',
+                      name: '我',
                       avatarEmoji: '🌱',
                       progress: (_myWeeklyDays / 7).clamp(0.0, 1.0),
                       days: _myWeeklyDays,
@@ -233,16 +228,16 @@ class _CommunityScreenState extends State<CommunityScreen> {
               ),
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
-            // 模块二：同路人善意共鸣信箱
+            // 模块二：善意信箱
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '同路人善意信箱',
+                  '善意信箱',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : Colors.black87,
                   ),
@@ -258,30 +253,22 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             InkWell(
               onTap: () {
                 HapticFeedback.lightImpact();
                 KindnessMailboxDialog.show(context);
               },
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(20),
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF1E2623) : const Color(0xFFFFFDF9),
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isDark ? Colors.white12 : const Color(0xFFE8DFD0),
                   ),
-                  boxShadow: [
-                    if (!isDark)
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,18 +302,18 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     Text(
                       note.content,
                       style: TextStyle(
                         fontSize: 14,
-                        height: 1.55,
+                        height: 1.5,
                         color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF2C241D),
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,
                       child: Text(
@@ -343,16 +330,16 @@ class _CommunityScreenState extends State<CommunityScreen> {
               ),
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
-            // 模块三：自律荣誉殿堂与勋章
+            // 模块三：成就勋章
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '圈子荣誉殿堂',
+                  '成就勋章',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : Colors.black87,
                   ),
@@ -360,55 +347,50 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 TextButton.icon(
                   onPressed: () => _showMilestoneHall(context),
                   icon: const Icon(Icons.military_tech_rounded, size: 18),
-                  label: const Text('全部勋章'),
+                  label: const Text('查看'),
                   style: TextButton.styleFrom(foregroundColor: Colors.amber[700]),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             InkWell(
               onTap: () => _showMilestoneHall(context),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(20),
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    if (!isDark)
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 20,
-                        offset: const Offset(0, 4),
-                      ),
-                  ],
+                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                  ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: 52,
-                      height: 52,
+                      width: 46,
+                      height: 46,
                       decoration: BoxDecoration(
                         color: Colors.amber.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
-                        child: Text('🏆', style: TextStyle(fontSize: 26)),
+                        child: Text('🏆', style: TextStyle(fontSize: 22)),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            '自律里程碑勋章殿堂',
+                            '勋章殿堂',
                             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
-                            '已设立 8 大心流徽章 · 与搭子互勉见证点滴成长',
+                            '已解锁 8 枚自律徽章',
                             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                           ),
                         ],
@@ -419,7 +401,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 36),
           ],
         ),
       ),

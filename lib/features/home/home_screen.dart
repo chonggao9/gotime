@@ -800,28 +800,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Text('❄️', style: TextStyle(fontSize: 22)),
-                        const SizedBox(width: 12),
+                        const Text('❄️', style: TextStyle(fontSize: 20)),
+                        const SizedBox(width: 10),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '免责休假保护中 · ${FreezeModeService.instance.currentReason}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              const Text(
-                                '不扣减习惯强度，连胜不断签，安心休息',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
+                          child: Text(
+                            '休假中 · ${FreezeModeService.instance.currentReason}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                         TextButton(
@@ -938,7 +926,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 8),
                       const Expanded(
                         child: Text(
-                          '拖动右侧手柄即可调整习惯执行排序，置顶习惯优先位于顶层',
+                          '长按右侧手柄拖拽排序',
                           style: TextStyle(fontSize: 12, color: AppTheme.mintGreen, fontWeight: FontWeight.w600),
                         ),
                       ),

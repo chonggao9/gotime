@@ -65,12 +65,12 @@ class _HealthSyncDialogState extends State<HealthSyncDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '系统健康数据自动打卡',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    '健康数据同步',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: 2),
                   Text(
-                    'Apple Health / Android Health Connect 感应',
+                    '读取步数自动打卡',
                     style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],

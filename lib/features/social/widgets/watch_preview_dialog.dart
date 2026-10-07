@@ -124,12 +124,12 @@ class _WatchPreviewDialogState extends State<WatchPreviewDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '⌚ 智能手表微端与表盘',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    '智能手表',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
-                    '抬腕即打卡 · watchOS & Wear OS 双平台自适应',
+                    '抬腕快速打卡',
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                 ],

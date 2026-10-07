@@ -2,25 +2,25 @@ import 'package:flutter/material.dart';
 
 enum BrandColor {
   mint(
-    name: '翠绿薄荷',
+    name: '薄荷绿',
     emoji: '🌿',
     primary: Color(0xFF10B981),
     secondary: Color(0xFF059669),
   ),
   iceBlue(
-    name: '冰晶蔚蓝',
+    name: '天空蓝',
     emoji: '❄️',
     primary: Color(0xFF0284C7),
     secondary: Color(0xFF0369A1),
   ),
   twilightPurple(
-    name: '暮光雅紫',
+    name: '星空紫',
     emoji: '🔮',
     primary: Color(0xFF8B5CF6),
     secondary: Color(0xFF7C3AED),
   ),
   sunsetCoral(
-    name: '暖阳珊瑚',
+    name: '珊瑚橙',
     emoji: '🌅',
     primary: Color(0xFFF97316),
     secondary: Color(0xFFEA580C),

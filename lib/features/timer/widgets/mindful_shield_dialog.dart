@@ -135,15 +135,15 @@ class _MindfulShieldDialogState extends State<MindfulShieldDialog> with SingleTi
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '正念自律屏障',
+                            '防沉迷屏障',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 17,
                               fontWeight: FontWeight.bold,
                               color: isDark ? Colors.white : Colors.black87,
                             ),
                           ),
                           Text(
-                            '在冲动与反应之间插入正念缓冲',
+                            '深呼吸冷却',
                             style: TextStyle(
                               fontSize: 11,
                               color: isDark ? Colors.white54 : Colors.black54,

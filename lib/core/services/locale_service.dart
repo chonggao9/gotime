@@ -79,14 +79,14 @@ class LocaleService extends ChangeNotifier {
       'ja': '統計',
     },
     'tab_community': {
-      'zh': '自律圈子',
-      'zh_Hant': '自律圈子',
+      'zh': '圈子',
+      'zh_Hant': '圈子',
       'en': 'Community',
       'ja': 'サークル',
     },
     'tab_settings': {
-      'zh': '系统设置',
-      'zh_Hant': '系統設定',
+      'zh': '设置',
+      'zh_Hant': '設定',
       'en': 'Settings',
       'ja': '設定',
     },

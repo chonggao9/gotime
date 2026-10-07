@@ -45,7 +45,7 @@ void main() {
 
       expect(service.t('tab_habits'), equals('今日習慣'));
       expect(service.t('tab_stats'), equals('數據洞察'));
-      expect(service.t('tab_community'), equals('自律圈子'));
+      expect(service.t('tab_community'), equals('圈子'));
     });
 
     test('Unknown keys fallback gracefully to key itself', () {

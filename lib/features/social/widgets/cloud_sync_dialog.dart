@@ -77,7 +77,7 @@ class _CloudSyncDialogState extends State<CloudSyncDialog> {
                   Row(
                     children: [
                       const Text(
-                        '☁️ 云端多端同步',
+                        '云端同步',
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 8),
@@ -96,7 +96,7 @@ class _CloudSyncDialogState extends State<CloudSyncDialog> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '多设备无损实时合库 · 游客模式平滑桥接',
+                    '多设备自动同步数据',
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                 ],

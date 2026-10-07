@@ -116,7 +116,9 @@
   - **描述**：提供银行级隐私保护，App 退至后台或闲置时自动进入高斯模糊锁屏，支持 FaceID / 指纹触控或 4 位数字密码解锁，确保自律日记与打卡足迹私密安全。
   - **落地交付**：已实现 `PrivacyLockService` 全局状态管理、`PrivacyLockOverlay` 磨砂毛玻璃全屏遮罩与触感九宫格数字键盘，集成于主入口并接入生命周期监听与单元测试。
 
-- [ ] **F5.3 智能手表 Wear OS / watchOS 独立微端打卡 (Watch Extension)** `[P3]`
+- [x] **F5.3 智能手表 Wear OS / watchOS 独立微端打卡 (Watch Extension & Dial Companion)** `[P3]`
+  - **描述**：腕上独立微端打卡体验。支持 Apple Watch 方形（Squircle）与 Pixel / Galaxy Watch 圆形（Round）物理表壳拟真仿真、表冠（Digital Crown）触感交互、实时同步置顶微习惯并支持一键抬腕即打卡与表盘复杂功能（Complications）。
+  - **落地交付**：已实现 `WatchCompanionService`、`WatchPreviewDialog` 拟真 OLED 硬件仿真弹窗，在【圈子与设置】中提供配置入口，并通过单元测试全面验证。
 
 ---
 

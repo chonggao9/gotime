@@ -8,6 +8,7 @@ import '../../../core/services/theme_service.dart';
 import '../../../core/services/webdav_service.dart';
 import 'widgets/backup_dialog.dart';
 import 'widgets/health_sync_dialog.dart';
+import 'widgets/watch_preview_dialog.dart';
 import 'widgets/webdav_dialog.dart';
 import 'widgets/widget_preview_dialog.dart';
 
@@ -240,6 +241,15 @@ class _SocialScreenState extends State<SocialScreen> {
                     title: '桌面小组件工坊 (Widgets)',
                     subtitle: '配置与预览 2×2 / 4×2 手机桌面小组件',
                     onTap: () => WidgetPreviewDialog.show(context),
+                    isDark: isDark,
+                  ),
+                  _buildDivider(isDark),
+
+                  _buildSettingAction(
+                    icon: Icons.watch_rounded,
+                    title: '智能手表微端与表盘 (watchOS / Wear OS)',
+                    subtitle: '腕上微端独立打卡、表盘复杂功能与表冠模拟',
+                    onTap: () => WatchPreviewDialog.show(context),
                     isDark: isDark,
                   ),
                 ],

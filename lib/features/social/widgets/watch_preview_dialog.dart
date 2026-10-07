@@ -379,7 +379,7 @@ class _WatchPreviewDialogState extends State<WatchPreviewDialog> {
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.zero,
               itemCount: habits.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 6),
+              separatorBuilder: (_, index) => const SizedBox(height: 6),
               itemBuilder: (context, index) {
                 final habit = habits[index];
                 final isDone = _watchService.isCompleted(habit.id);

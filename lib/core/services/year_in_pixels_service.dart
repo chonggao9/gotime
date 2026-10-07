@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../models/habit.dart';
 import '../../models/check_in.dart';
 
 class PixelDay {
@@ -87,7 +86,7 @@ class YearInPixelsService {
 
       for (int day = 1; day <= daysInMonth; day++) {
         final date = DateTime(targetYear, month, day);
-        final dateKey = '${targetYear}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
+        final dateKey = '$targetYear-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
         final dayLogs = checkInsByDate[dateKey] ?? [];
 
         final completed = dayLogs.where((l) => l.status == CheckInStatus.completed).length;

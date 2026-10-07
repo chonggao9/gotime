@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/freeze_mode_service.dart';
-import '../../../core/services/health_sync_service.dart';
 import '../../../core/services/privacy_lock_service.dart';
 import '../../../core/services/locale_service.dart';
 import '../../../core/services/theme_service.dart';
@@ -10,8 +9,10 @@ import '../../../core/services/webdav_service.dart';
 import '../../../core/services/buddy_service.dart';
 import '../../../core/services/reminder_service.dart';
 import '../../../core/database/sqlite_service.dart';
+import '../../../core/services/cloud_sync_service.dart';
 import 'widgets/backup_dialog.dart';
 import 'widgets/buddy_pairing_dialog.dart';
+import 'widgets/cloud_sync_dialog.dart';
 import 'widgets/health_sync_dialog.dart';
 import 'widgets/language_selector_sheet.dart';
 import 'widgets/reminder_settings_dialog.dart';
@@ -28,7 +29,6 @@ class SocialScreen extends StatefulWidget {
 
 class _SocialScreenState extends State<SocialScreen> {
   final _buddyService = BuddyService.instance;
-  bool _isCloudSyncEnabled = false;
   int _myWeeklyDays = 3;
 
   @override
@@ -393,13 +393,18 @@ class _SocialScreenState extends State<SocialScreen> {
                     },
                   ),
                   _buildDivider(isDark),
-                  _buildSettingSwitch(
-                    icon: Icons.cloud_sync_rounded,
-                    title: 'Firebase 云端备份',
-                    subtitle: '安全同步到您的 Google 账号',
-                    value: _isCloudSyncEnabled,
-                    onChanged: (val) => setState(() => _isCloudSyncEnabled = val),
-                    isDark: isDark,
+                  ListenableBuilder(
+                    listenable: CloudSyncService.instance,
+                    builder: (context, child) {
+                      final cloudService = CloudSyncService.instance;
+                      return _buildSettingAction(
+                        icon: Icons.cloud_sync_rounded,
+                        title: '云端多端同步与跨设备桥接 (Cloud Sync)',
+                        subtitle: cloudService.getLastSyncSummary(),
+                        onTap: () => CloudSyncDialog.show(context),
+                        isDark: isDark,
+                      );
+                    },
                   ),
                   _buildDivider(isDark),
                   ListenableBuilder(
@@ -661,40 +666,7 @@ class _SocialScreenState extends State<SocialScreen> {
     );
   }
 
-  Widget _buildSettingItem({
-    required IconData icon,
-    required String title,
-    required Widget trailing,
-    required bool isDark,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.grey[800] : Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: isDark ? Colors.white70 : Colors.black87),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : Colors.black87,
-              ),
-            ),
-          ),
-          trailing,
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildSettingAction({
     required IconData icon,

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import '../../../core/services/health_sync_service.dart';
 import '../../../core/services/theme_service.dart';
 import '../../../core/database/sqlite_service.dart';
-import '../../../models/habit.dart';
 
 class HealthSyncDialog extends StatefulWidget {
   final VoidCallback onSyncCompleted;

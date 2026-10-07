@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/database/sqlite_service.dart';
 import '../../../core/services/freeze_mode_service.dart';
+import '../../../core/services/habit_order_service.dart';
 import '../../../models/habit.dart';
 import '../../../models/check_in.dart';
 import 'widgets/habit_card.dart';
@@ -25,6 +26,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Habit> _habits = [];
   bool _isLoading = true;
+  bool _isReorderMode = false;
   
   // 时段筛选：all, morning, afternoon, evening
   String _selectedTimeSlot = 'all';
@@ -37,7 +39,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    HabitOrderService.instance.addListener(_onHabitOrderChanged);
     _loadHabits();
+  }
+
+  @override
+  void dispose() {
+    HabitOrderService.instance.removeListener(_onHabitOrderChanged);
+    super.dispose();
+  }
+
+  void _onHabitOrderChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadHabits() async {
@@ -111,8 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<Habit> get _filteredHabits {
-    if (_selectedTimeSlot == 'all') return _habits;
-    return _habits.where((h) => h.timeOfDay == _selectedTimeSlot || h.timeOfDay == 'all').toList();
+    final list = _selectedTimeSlot == 'all'
+        ? _habits
+        : _habits.where((h) => h.timeOfDay == _selectedTimeSlot || h.timeOfDay == 'all').toList();
+    return HabitOrderService.instance.sortHabits(list);
   }
 
   void _showCreateSheet() {
@@ -534,7 +549,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
               ),
-              const SizedBox(width: 4),
+              IconButton(
+                tooltip: _isReorderMode ? '完成自定义排序' : '习惯排序与重排',
+                icon: Icon(
+                  _isReorderMode ? Icons.check_circle_rounded : Icons.swap_vert_rounded,
+                  size: 22,
+                  color: _isReorderMode ? AppTheme.mintGreen : null,
+                ),
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  setState(() => _isReorderMode = !_isReorderMode);
+                },
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 12.0),
                 child: IconButton(
@@ -701,6 +727,47 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
+          if (_isReorderMode && displayedHabits.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppTheme.mintGreen.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.mintGreen.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.swap_vert_rounded, size: 18, color: AppTheme.mintGreen),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          '拖动右侧手柄即可调整习惯执行排序，置顶习惯优先位于顶层',
+                          style: TextStyle(fontSize: 12, color: AppTheme.mintGreen, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          HabitOrderService.instance.resetOrder();
+                          setState(() {});
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.mintGreen,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('恢复默认', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
           // 习惯卡片列表或空状态
           if (_isLoading)
             const SliverToBoxAdapter(
@@ -751,6 +818,81 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
+              ),
+            )
+          else if (_isReorderMode)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              sliver: SliverReorderableList(
+                itemCount: displayedHabits.length,
+                onReorder: (oldIndex, newIndex) {
+                  HapticFeedback.selectionClick();
+                  HabitOrderService.instance.handleReorder(displayedHabits, oldIndex, newIndex);
+                  setState(() {});
+                },
+                itemBuilder: (context, index) {
+                  final habit = displayedHabits[index];
+                  return ReorderableDelayedDragStartListener(
+                    key: ValueKey(habit.id),
+                    index: index,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: habit.isPinned
+                              ? AppTheme.mintGreen.withValues(alpha: 0.6)
+                              : (isDark ? Colors.grey[800]! : Colors.grey[200]!),
+                          width: habit.isPinned ? 1.5 : 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Text(habit.iconEmoji, style: const TextStyle(fontSize: 22)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text(
+                                  habit.name,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : Colors.black87,
+                                  ),
+                                ),
+                                if (habit.isPinned) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.mintGreen.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text('置顶', style: TextStyle(color: AppTheme.mintGreen, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          ReorderableDragStartListener(
+                            index: index,
+                            child: Icon(Icons.drag_handle_rounded, color: isDark ? Colors.grey[400] : Colors.grey[500]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             )
           else

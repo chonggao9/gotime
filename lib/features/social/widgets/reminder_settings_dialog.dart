@@ -209,7 +209,7 @@ class _ReminderSettingsDialogState extends State<ReminderSettingsDialog> {
                             ),
                             Switch.adaptive(
                               value: _service.isQuietHoursEnabled,
-                              activeColor: AppTheme.mintGreen,
+                              activeTrackColor: AppTheme.mintGreen,
                               onChanged: (v) => _service.updateQuietHours(enabled: v),
                             ),
                           ],
@@ -355,7 +355,7 @@ class _ReminderSettingsDialogState extends State<ReminderSettingsDialog> {
           const SizedBox(width: 8),
           Switch.adaptive(
             value: isEnabled,
-            activeColor: AppTheme.mintGreen,
+            activeTrackColor: AppTheme.mintGreen,
             onChanged: onToggle,
           ),
         ],

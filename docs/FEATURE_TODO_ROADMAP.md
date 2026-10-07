@@ -180,6 +180,20 @@
   - **描述**：解决数值打卡步进生硬机械问题。基于目标单位（ml, km, 页, 分钟, 杯等）与总目标自动推导最佳单次点击步进量（如喝水 +250ml、运动 +1km、读书 +5页）；支持长按加号或点击数值直接弹出快捷微调面板（QuickCounterSheet），支持拖拽进度滑块与数字键盘直达。
   - **落地交付**：实现 `CounterStepHelper` 自适应步进推导、`QuickCounterSheet` 交互面板与 `HabitCard` 点击/长按联动，全套单元测试通过。
 
+---
+
+## 阶段九：云端多端融合与自由节律重排 (Phase 9: Cloud Synchronization & Habit Reordering)
+
+- [x] **F9.1 云端多端增量合并同步与跨设备游客桥接 (Cloud Sync & Multi-Device Seamless Bridge)** `[P0]`
+  - **灵感**：*Apple iCloud / Local-First Software Philosophy*
+  - **描述**：兼顾“本地优先隐私”与“多设备无缝漫游”。支持多设备集群管理（Web 客户端、iPhone、Apple Watch 等），支持一键关联账号，采用 Last-Write-Wins (LWW) 增量数据双向哈希校验与版本合库，保护本地离线打卡历史零丢失。
+  - **落地交付**：实现 `CloudSyncService`、`CloudSyncDialog`，在【圈子与设置】中提供设备集群拓扑卡片、WiFi 自动同步与手动一键合库操作，并通过 9/9 单元测试。
+
+- [x] **F9.2 习惯自定义拖拽排序与执行节律编排 (Custom Drag Reordering & Daily Rhythm)** `[P1]`
+  - **灵感**：*Things 3 / TickTick / Notion*
+  - **描述**：允许用户打破固定创建时间限制，在首页一键开启自定义排序模式，通过触感手柄自由拖拽重排习惯次序。与置顶（Pin）机制无缝融合（置顶习惯优先置顶，其余项严格尊崇自定义编排节律），并提供一键恢复默认。
+  - **落地交付**：实现 `HabitOrderService`、首页 `SliverReorderableList` 拖拽交互与状态持久化监听，通过自动化单元测试全覆盖。
+
 
 
 

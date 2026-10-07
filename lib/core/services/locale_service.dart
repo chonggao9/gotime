@@ -55,7 +55,6 @@ class LocaleService extends ChangeNotifier {
         return dict['zh_Hant'] ?? dict['zh'] ?? key;
       case AppLanguage.zhHans:
       case AppLanguage.system:
-      default:
         return dict['zh'] ?? key;
     }
   }

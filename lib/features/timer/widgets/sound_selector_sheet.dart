@@ -68,23 +68,43 @@ class _SoundSelectorSheetState extends State<SoundSelectorSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '沉浸专注白噪音',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        '沉浸专注白噪音',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF10B981),
+                          borderRadius: BorderRadius.all(Radius.circular(6)),
+                        ),
+                        child: Text(
+                          'Hi-Fi 实录',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 4),
                   Text(
-                    '自然音律声境，隔绝外界杂音，迅速入定',
+                    '母带级高保真原声采风 · 拒绝算法合成 · 纯净自然听感',
                     style: TextStyle(
                       color: Colors.white54,
-                      fontSize: 13,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -106,7 +126,7 @@ class _SoundSelectorSheetState extends State<SoundSelectorSheet> {
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 2.2,
+              childAspectRatio: 2.1,
             ),
             itemBuilder: (context, index) {
               final sound = AmbientSoundType.values[index];
@@ -121,7 +141,7 @@ class _SoundSelectorSheetState extends State<SoundSelectorSheet> {
                 borderRadius: BorderRadius.circular(16),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: isSelected ? color.withOpacity(0.18) : Colors.white.withOpacity(0.04),
                     borderRadius: BorderRadius.circular(16),
@@ -146,22 +166,32 @@ class _SoundSelectorSheetState extends State<SoundSelectorSheet> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              sound.name,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.white70,
-                                fontSize: 14,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                              ),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    sound.name,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.white : Colors.white70,
+                                      fontSize: 13,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                if (isSelected && _service.isPlaying) ...[
+                                  const SizedBox(width: 4),
+                                  Icon(Icons.graphic_eq_rounded, size: 14, color: color),
+                                ],
+                              ],
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              sound.description,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              sound.qualityLabel,
                               style: TextStyle(
-                                color: isSelected ? color.withOpacity(0.9) : Colors.white38,
-                                fontSize: 10,
+                                color: isSelected ? color : Colors.white38,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],

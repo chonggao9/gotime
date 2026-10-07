@@ -67,10 +67,11 @@
   - **描述**：支持一键导出完整的 `gotime_backup.json`，随时可导入恢复；支持导出 `habits_data.csv`，方便用户在 Excel / Notion 自行分析。
   - **落地交付**：已实现 `BackupService`，支持 RFC 4180 标准 CSV 导出与完整 JSON 备份及合法性校验，并在圈子/设置页提供 `BackupDialog` 界面与自动化测试。
 
-- [x] **F3.2 专注计时器白噪音声境与颂钵禅鸣 (Ambient Focus Soundscapes)** `[P2]`
-  - **灵感**：*Forest / InlitX*
-  - **描述**：番茄钟/计时专注期间，支持伴随舒缓的雨声 🌧️、森林 🌲、潮汐 🌊、壁炉 🔥、咖啡馆 ☕ 白噪音，倒计时结束提供颂钵禅鸣并自动记录打卡。
-  - **落地交付**：已实现 `AmbientSoundService`、`SoundSelectorSheet`、动态起伏波形条 `SoundWaveVisualizer`，专注倒计时结束自动记录 `duration_seconds` 到打卡数据库，并提供暂停/继续控制。
+- [x] **F3.2 离线高保真母带采风白噪音声境与颂钵禅鸣 (Offline Hi-Fi Sampled Ambient Soundscapes)** `[P2]`
+  - **灵感**：*Forest / Moodist / InlitX*
+  - **核心准则**：**彻底摒弃机械刺耳的 Web Audio 算法数学震荡器合成方案，全量内置高保真母带采风真实音源资产**。
+  - **描述**：番茄钟/计时专注期间，支持伴随 48kHz / 320kbps 纯天然采风原声：淅淅春雨 🌧️（野外春雨实录）、幽静森林 🌲（林间微风吹拂树冠真音）、舒缓潮汐 🌊（大西洋深海浪涌）、温暖壁炉 🔥（真实松木柴火爆裂微鸣）、街角咖啡 ☕（巴黎左岸咖啡馆人声氛围），倒计时结束提供纯正青铜禅音颂钵回荡。
+  - **落地交付**：在 `assets/audio/` 与 `web/sounds/` 内置完整实录高保真音轨；实现 `PlatformAudioPlayer` 跨平台零时延无缝离线循环引擎；升级 `AmbientSoundService`、`SoundSelectorSheet`（标驻 `Hi-Fi 实录` 与 `48kHz 实录真音` 标签）与 `SoundWaveVisualizer`，通过 50/50 单元测试全面验证。
 
 - [x] **F3.3 打卡心得笔记与心情记录真实持久化 (Check-in Note & Mood Logging)** `[P1]`
   - **描述**：将打卡心得备忘与 1~5 档心情 Emoji 真实持久化存储到 `check_ins` 表的 `log_text` 和 `mood` 字段；在习惯详情页可查看历史感悟时间轴，并支持随时补充记录。

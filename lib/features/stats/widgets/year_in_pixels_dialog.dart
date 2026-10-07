@@ -153,10 +153,12 @@ class _YearInPixelsDialogState extends State<YearInPixelsDialog> {
 
           // 365 天 12 个月像素网格
           Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: _buildMonthsMosaic(grid, isDark),
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: _buildMonthsMosaic(grid, isDark),
+                  ),
           ),
           const SizedBox(height: 16),
 

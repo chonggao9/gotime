@@ -185,7 +185,9 @@ class _WatchPreviewDialogState extends State<WatchPreviewDialog> {
           // 手表硬件与 OLED 屏幕真机渲染仿真
           Expanded(
             child: Center(
-              child: _buildWatchHardware(formFactor, watchHabits, primaryColor),
+              child: _isLoading
+                  ? const CircularProgressIndicator()
+                  : _buildWatchHardware(formFactor, watchHabits, primaryColor),
             ),
           ),
           const SizedBox(height: 20),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/services/ambient_sound_service.dart';
 import '../../../core/theme/app_theme.dart';
+import 'sound_mixer_sheet.dart';
 
 class SoundSelectorSheet extends StatefulWidget {
   const SoundSelectorSheet({Key? key}) : super(key: key);
@@ -109,9 +110,22 @@ class _SoundSelectorSheetState extends State<SoundSelectorSheet> {
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close_rounded, color: Colors.white70),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: '多轨混音台',
+                    icon: const Icon(Icons.tune_rounded, color: AppTheme.mintGreen, size: 20),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      SoundMixerSheet.show(context);
+                    },
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                  ),
+                ],
               ),
             ],
           ),

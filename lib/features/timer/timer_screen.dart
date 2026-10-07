@@ -8,6 +8,7 @@ import '../../core/services/ambient_sound_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/check_in.dart';
 import '../../models/habit.dart';
+import 'widgets/sound_mixer_sheet.dart';
 import 'widgets/sound_selector_sheet.dart';
 import 'widgets/sound_wave_visualizer.dart';
 
@@ -245,38 +246,51 @@ class _TimerScreenState extends State<TimerScreen> with SingleTickerProviderStat
                     icon: const Icon(Icons.close_rounded, color: Colors.white54, size: 28),
                   ),
 
-                  // 白噪音胶囊控制
-                  GestureDetector(
-                    onTap: () => SoundSelectorSheet.show(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: _ambientService.isPlaying ? AppTheme.mintGreen.withOpacity(0.5) : Colors.white12,
-                        ),
+                  // 右侧音频控制区：多轨混音台 + 单轨白噪音胶囊
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 48kHz 多轨混音调音台入口
+                      IconButton(
+                        tooltip: '48kHz 多轨混音台',
+                        icon: const Icon(Icons.tune_rounded, color: AppTheme.mintGreen, size: 22),
+                        onPressed: () => SoundMixerSheet.show(context),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(activeSound.iconEmoji, style: const TextStyle(fontSize: 16)),
-                          const SizedBox(width: 6),
-                          Text(
-                            activeSound.name,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                      const SizedBox(width: 4),
+                      // 白噪音胶囊控制
+                      GestureDetector(
+                        onTap: () => SoundSelectorSheet.show(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: _ambientService.isPlaying ? AppTheme.mintGreen.withOpacity(0.5) : Colors.white12,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          SoundWaveVisualizer(
-                            barColor: Color(activeSound.themeColor),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(activeSound.iconEmoji, style: const TextStyle(fontSize: 16)),
+                              const SizedBox(width: 6),
+                              Text(
+                                activeSound.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              SoundWaveVisualizer(
+                                barColor: Color(activeSound.themeColor),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),

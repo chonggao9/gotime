@@ -4,11 +4,13 @@ import '../../../core/services/theme_service.dart';
 import '../../../core/services/milestone_service.dart';
 import '../../../core/database/sqlite_service.dart';
 import '../../../models/check_in.dart';
+import '../../../models/habit.dart';
 import 'widgets/heatmap_calendar.dart';
 import 'widgets/milestone_hall_dialog.dart';
 import 'widgets/share_poster_dialog.dart';
 import 'widgets/year_in_pixels_dialog.dart';
 import 'widgets/habit_analytics_card.dart';
+import 'widgets/habit_garden_dialog.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -68,6 +70,60 @@ class _StatsScreenState extends State<StatsScreen> {
     return list;
   }
 
+  Future<void> _showGardenDialog() async {
+    final habits = await SQLiteService.instance.getAllActiveHabits();
+    final todayStr = DateTime.now().toIso8601String().split('T')[0];
+    final todayLogs = await SQLiteService.instance.getCheckInsForDate(todayStr);
+
+    final completedIds = todayLogs
+        .where((c) => c.status == CheckInStatus.completed)
+        .map((c) => c.habitId)
+        .toSet();
+    final skippedIds = todayLogs
+        .where((c) => c.status == CheckInStatus.skipped)
+        .map((c) => c.habitId)
+        .toSet();
+
+    if (mounted) {
+      HabitGardenDialog.show(
+        context,
+        habits: habits.isNotEmpty
+            ? habits
+            : [
+                Habit(
+                  id: '1',
+                  name: '早起喝水',
+                  iconEmoji: '💧',
+                  themeColor: '#34D399',
+                  type: HabitType.counter,
+                  frequency: const {'type': 'daily'},
+                  updatedAt: DateTime.now(),
+                ),
+                Habit(
+                  id: '2',
+                  name: '深度工作',
+                  iconEmoji: '🍅',
+                  themeColor: '#F87171',
+                  type: HabitType.timer,
+                  frequency: const {'type': 'daily'},
+                  updatedAt: DateTime.now(),
+                ),
+                Habit(
+                  id: '3',
+                  name: '睡前阅读',
+                  iconEmoji: '📚',
+                  themeColor: '#60A5FA',
+                  type: HabitType.boolean,
+                  frequency: const {'type': 'daily'},
+                  updatedAt: DateTime.now(),
+                ),
+              ],
+        completedHabitIds: completedIds,
+        skippedHabitIds: skippedIds,
+      );
+    }
+  }
+
   // 模拟热力图数据
   Map<DateTime, HeatmapLevel> _generateMockData() {
     final Map<DateTime, HeatmapLevel> data = {};
@@ -101,6 +157,11 @@ class _StatsScreenState extends State<StatsScreen> {
         title: const Text('数据洞察', style: TextStyle(letterSpacing: 2)),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.yard_rounded, color: Color(0xFF10B981)),
+            tooltip: '疗愈习惯花园',
+            onPressed: _showGardenDialog,
+          ),
           IconButton(
             icon: const Icon(Icons.ios_share_rounded),
             tooltip: '生成分享海报',
@@ -164,10 +225,21 @@ class _StatsScreenState extends State<StatsScreen> {
                       color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: () => YearInPixelsDialog.show(context),
-                    icon: const Icon(Icons.palette_outlined, size: 16),
-                    label: const Text('全景年鉴 🎨', style: TextStyle(fontSize: 12)),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextButton.icon(
+                        onPressed: _showGardenDialog,
+                        icon: const Icon(Icons.yard_outlined, size: 16, color: Color(0xFF10B981)),
+                        label: const Text('疗愈花园 🏡', style: TextStyle(fontSize: 12, color: Color(0xFF10B981))),
+                      ),
+                      const SizedBox(width: 4),
+                      TextButton.icon(
+                        onPressed: () => YearInPixelsDialog.show(context),
+                        icon: const Icon(Icons.palette_outlined, size: 16),
+                        label: const Text('全景年鉴 🎨', style: TextStyle(fontSize: 12)),
+                      ),
+                    ],
                   ),
                 ],
               ),

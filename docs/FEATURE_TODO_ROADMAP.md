@@ -143,5 +143,25 @@
   - **描述**：出海就绪。支持简体中文（🇨🇳 简体中文）、繁体中文（🇭🇰 繁體中文）、英语（🇺🇸 English）与日语（🇯🇵 日本語）实时无感热切换，覆盖底部导航栏、通用操作、核心指标、设置面板及各类成就弹窗。
   - **落地交付**：已实现响应式 `LocaleService` 全局状态管理、`LanguageSelectorSheet` 交互式语言点选弹窗，并在 `MaterialApp` 入口建立 `Listenable.merge` 双通道响应与单元测试全绿覆盖。
 
+---
+
+## 阶段七：社交陪伴与智能提醒体系 (Phase 7: Accountability Buddy & Smart Reminders)
+
+- [x] **F7.1 习惯搭子双人结对与隔空互勉系统 (Accountability Buddy & Mutual Motivation)** `[P1]`
+  - **灵感**：*Support Groups / Accountability Partner Psychology*
+  - **核心准则**：**拒绝喧嚣的大广场与虚荣点赞，专注双人深度陪伴与无压力互勉**。
+  - **描述**：通过 1 键生成专属专属结对密令（如 `GT-MINT-8848`），朋友填入口令即可双向绑定。双人专属对决卡片动态计算本周完成天数与剩余天数。支持 4 类温暖隔空互动动作：
+    - ⚡ **隔空戳一戳**（“轻轻戳了你一下，该喝水运动打卡啦！”）
+    - 🙌 **击掌鼓劲**（“太棒了！今天也一起达成了全勤自律！”）
+    - ❄️ **赠送请假卡**（“今天累了就好好休息，我帮你守护连胜！”）
+    - 🌟 **加油应援**（自定义鼓励便签回音壁）
+  - **落地交付**：实现 `BuddyService`、`BuddyPairingDialog`、互勉动态时间轴与双轨打卡对比，全面集成在【圈子与设置】页并通过单元测试。
+
+- [x] **F7.2 智能时段提醒与全局静音免打扰调度 (Smart Habit Reminders & Quiet Hours DND Engine)** `[P0]`
+  - **灵感**：*TickTick / Fabulous / Apple Sleep Focus*
+  - **描述**：科学分时段温和唤醒，避免信息轰炸。支持三大时段调度（晨间唤醒 08:00、午间回能 13:00、晚间复盘 21:00），支持 24 小时任意时间微调与总控开关；内置夜间深度睡眠免打扰（Quiet Hours: 22:30 ~ 07:00，跨午夜高精度分钟级判定）；支持模拟测试推送。
+  - **落地交付**：实现 `ReminderService`、`ReminderSettingsDialog` 弹窗，支持全天提醒概要预览与免打扰逻辑跨午夜自动化测试验证。
+
+
 
 

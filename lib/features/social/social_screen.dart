@@ -7,9 +7,14 @@ import '../../../core/services/privacy_lock_service.dart';
 import '../../../core/services/locale_service.dart';
 import '../../../core/services/theme_service.dart';
 import '../../../core/services/webdav_service.dart';
+import '../../../core/services/buddy_service.dart';
+import '../../../core/services/reminder_service.dart';
+import '../../../core/database/sqlite_service.dart';
 import 'widgets/backup_dialog.dart';
+import 'widgets/buddy_pairing_dialog.dart';
 import 'widgets/health_sync_dialog.dart';
 import 'widgets/language_selector_sheet.dart';
+import 'widgets/reminder_settings_dialog.dart';
 import 'widgets/watch_preview_dialog.dart';
 import 'widgets/webdav_dialog.dart';
 import 'widgets/widget_preview_dialog.dart';
@@ -22,12 +27,48 @@ class SocialScreen extends StatefulWidget {
 }
 
 class _SocialScreenState extends State<SocialScreen> {
+  final _buddyService = BuddyService.instance;
   bool _isCloudSyncEnabled = false;
-  bool _isPrivacyLockEnabled = false;
+  int _myWeeklyDays = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    _buddyService.addListener(_onBuddyChanged);
+    _loadMyWeeklyDays();
+  }
+
+  @override
+  void dispose() {
+    _buddyService.removeListener(_onBuddyChanged);
+    super.dispose();
+  }
+
+  void _onBuddyChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _loadMyWeeklyDays() async {
+    try {
+      final now = DateTime.now();
+      final monday = now.subtract(Duration(days: now.weekday - 1));
+      final mondayStr = '${monday.year}-${monday.month.toString().padLeft(2, '0')}-${monday.day.toString().padLeft(2, '0')}';
+      final sunday = monday.add(const Duration(days: 6));
+      final sundayStr = '${sunday.year}-${sunday.month.toString().padLeft(2, '0')}-${sunday.day.toString().padLeft(2, '0')}';
+
+      final checkIns = await SQLiteService.instance.getCheckInsForDateRange(mondayStr, sundayStr);
+      final days = BuddyService.instance.calculateMyWeeklyDays(checkIns);
+      if (mounted) {
+        setState(() => _myWeeklyDays = days > 0 ? days : 1);
+      }
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final buddy = _buddyService.buddy;
+    final remainingDays = 7 - DateTime.now().weekday + 1;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -56,69 +97,118 @@ class _SocialScreenState extends State<SocialScreen> {
                 TextButton.icon(
                   onPressed: () {
                     HapticFeedback.lightImpact();
+                    BuddyPairingDialog.show(context);
                   },
                   icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
-                  label: const Text('邀请搭子'),
+                  label: Text(_buddyService.hasBuddy ? '管理搭子' : '邀请搭子'),
                   style: TextButton.styleFrom(foregroundColor: AppTheme.mintGreen),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             
-            // 好友对决卡片
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  if (!isDark)
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        '🏆 本周全勤对决',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            // 好友对决卡片 (点击可弹出结对与互动面板)
+            InkWell(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                BuddyPairingDialog.show(context);
+              },
+              borderRadius: BorderRadius.circular(24),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    if (!isDark)
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 20,
+                        offset: const Offset(0, 4),
                       ),
-                      Text(
-                        '剩余 3 天',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '🏆 本周全勤对决',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '剩余 $remainingDays 天',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // 我的进度
+                    _buildComparisonTrack(
+                      name: '我 (自律先行者)',
+                      avatarEmoji: '🌱',
+                      progress: (_myWeeklyDays / 7).clamp(0.0, 1.0),
+                      days: _myWeeklyDays,
+                      color: AppTheme.mintGreen,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // 好友进度
+                    if (buddy != null && buddy.isPaired) ...[
+                      _buildComparisonTrack(
+                        name: buddy.name,
+                        avatarEmoji: buddy.avatarEmoji,
+                        progress: (buddy.weeklyDays / 7).clamp(0.0, 1.0),
+                        days: buddy.weeklyDays,
+                        color: Colors.blueAccent,
+                        isDark: isDark,
+                      ),
+                      if (buddy.interactions.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(buddy.interactions.first.type.iconEmoji, style: const TextStyle(fontSize: 16)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  buddy.interactions.first.message,
+                                  style: TextStyle(fontSize: 12, color: isDark ? Colors.white70 : Colors.black87),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '点击互勉 >',
+                                style: TextStyle(fontSize: 11, color: AppTheme.mintGreen, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ] else ...[
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            '暂未结对搭子 · 点击绑定密令开启双人互勉',
+                            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                          ),
+                        ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  // 我的进度
-                  _buildComparisonTrack(
-                    name: '我 (Zhenhua)',
-                    avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80',
-                    progress: 0.8,
-                    days: 4,
-                    color: AppTheme.mintGreen,
-                    isDark: isDark,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // 好友进度
-                  _buildComparisonTrack(
-                    name: '搭子 (Alex)',
-                    avatarUrl: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&q=80',
-                    progress: 0.4,
-                    days: 2,
-                    color: Colors.blueAccent,
-                    isDark: isDark,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -383,6 +473,19 @@ class _SocialScreenState extends State<SocialScreen> {
                     },
                   ),
                   _buildDivider(isDark),
+                  ListenableBuilder(
+                    listenable: ReminderService.instance,
+                    builder: (context, child) {
+                      return _buildSettingAction(
+                        icon: Icons.notifications_active_rounded,
+                        title: '智能时段提醒与免打扰 (Smart Reminders)',
+                        subtitle: ReminderService.instance.getNextScheduledSummary(),
+                        onTap: () => ReminderSettingsDialog.show(context),
+                        isDark: isDark,
+                      );
+                    },
+                  ),
+                  _buildDivider(isDark),
                   _buildSettingAction(
                     icon: Icons.save_alt_rounded,
                     title: '本地全量数据备份 (JSON)',
@@ -435,7 +538,7 @@ class _SocialScreenState extends State<SocialScreen> {
 
   Widget _buildComparisonTrack({
     required String name,
-    required String avatarUrl,
+    required String avatarEmoji,
     required double progress,
     required int days,
     required Color color,
@@ -443,10 +546,15 @@ class _SocialScreenState extends State<SocialScreen> {
   }) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 16,
-          backgroundImage: NetworkImage(avatarUrl),
-          backgroundColor: isDark ? Colors.grey[800] : Colors.grey[200],
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Text(avatarEmoji, style: const TextStyle(fontSize: 18)),
         ),
         const SizedBox(width: 12),
         Expanded(

@@ -21,6 +21,7 @@ import 'widgets/webdav_dialog.dart';
 import 'widgets/widget_preview_dialog.dart';
 import '../home/widgets/kindness_mailbox_dialog.dart';
 import '../timer/widgets/mindful_shield_dialog.dart';
+import 'widgets/privacy_policy_dialog.dart';
 
 class SocialScreen extends StatefulWidget {
   const SocialScreen({super.key});
@@ -536,20 +537,42 @@ class _SocialScreenState extends State<SocialScreen> {
                     }),
                     isDark: isDark,
                   ),
+                  _buildDivider(isDark),
+                  _buildSettingAction(
+                    icon: Icons.privacy_tip_rounded,
+                    title: '隐私政策与数据安全 (Privacy Policy)',
+                    subtitle: '符合 Google Play 及 Apple 审核规范 · 权限与数据保护透明披露',
+                    onTap: () => PrivacyPolicyDialog.show(context),
+                    isDark: isDark,
+                  ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 36),
 
-            // 注销合规按钮 (App Store 审核必备)
+            // 底部合规协议与注销入口 (Google Play & Apple 审核死线)
             Center(
-              child: TextButton.icon(
-                onPressed: () {
-                  HapticFeedback.heavyImpact();
-                },
-                icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
-                label: const Text('注销账号并粉碎所有数据', style: TextStyle(color: Colors.redAccent)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      PrivacyPolicyDialog.show(context);
+                    },
+                    icon: const Icon(Icons.privacy_tip_outlined, size: 14, color: Colors.grey),
+                    label: const Text('隐私政策', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  ),
+                  const Text('·', style: TextStyle(color: Colors.grey)),
+                  TextButton.icon(
+                    onPressed: () {
+                      HapticFeedback.heavyImpact();
+                    },
+                    icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent, size: 14),
+                    label: const Text('注销账号并粉碎所有数据', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 60),

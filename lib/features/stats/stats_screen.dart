@@ -5,6 +5,7 @@ import '../../../core/services/milestone_service.dart';
 import 'widgets/heatmap_calendar.dart';
 import 'widgets/milestone_hall_dialog.dart';
 import 'widgets/share_poster_dialog.dart';
+import 'widgets/year_in_pixels_dialog.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -110,9 +111,10 @@ class _StatsScreenState extends State<StatsScreen> {
                       color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
-                  Text(
-                    '点击格子看详情',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  TextButton.icon(
+                    onPressed: () => YearInPixelsDialog.show(context),
+                    icon: const Icon(Icons.palette_outlined, size: 16),
+                    label: const Text('全景年鉴 🎨', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),

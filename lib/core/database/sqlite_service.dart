@@ -273,6 +273,23 @@ CREATE TABLE check_ins (
     }).toList();
   }
 
+  // 查询日期区间的打卡记录
+  Future<List<CheckIn>> getCheckInsForDateRange(String startDate, String endDate) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'check_ins',
+      where: 'date >= ? AND date <= ?',
+      whereArgs: [startDate, endDate],
+      orderBy: 'date ASC',
+    );
+    
+    return result.map((json) {
+      final map = Map<String, dynamic>.from(json);
+      map['is_suspicious'] = map['is_suspicious'] == 1;
+      return CheckIn.fromJson(map);
+    }).toList();
+  }
+
   // 供【今天主页】查询某天的打卡状态
   Future<List<CheckIn>> getCheckInsForDate(String dateString) async {
     final db = await instance.database;

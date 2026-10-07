@@ -209,8 +209,17 @@
   - **描述**：在数据洞察页深入解析用户的生物钟节律与周中表现趋势（周一至周日 7 根自适应高度胶囊柱，自动标驻巅峰心流日 👑）。结合打卡心情 Emoji（1~5 档），计算平均情绪均值，输出基于心理学模型的自我关怀温情寄语，破除机械的自我苛责。
   - **落地交付**：实现 `HabitAnalyticsService` 计算引擎、`HabitAnalyticsCard` 深度分析卡片，深度嵌入 `StatsScreen`，并通过自动化单元测试全覆盖。
 
+---
 
+## 阶段十一：心理阻力破壁与自然语言速记打卡 (Phase 11: Psychological Friction Breaker & Quick Natural Logger)
 
+- [x] **F11.1 《原子习惯》两分钟微习惯起步定律与心理阻力破壁器 (Two-Minute Rule & Friction Breaker)** `[P0]`
+  - **灵感**：*James Clear《Atomic Habits》第13章“两分钟定律”*
+  - **核心准则**：**当倦怠与拖延发生时，降级执行微小启动版本，起步即破壁，保持动量不归零**。
+  - **描述**：在习惯操作面板提供“两分钟微习惯起步”；根据习惯特征智能推导 2 分钟极简微目标（例如：阅读只翻开读 1 页、跑步先穿上跑鞋原地活动 2 分钟、写作只写 1 句草稿）。提供 120 秒优雅环形倒计时与达成正向激励卡片，完成后自动计入打卡历史并标记为微启动达成。
+  - **落地交付**：实现 `FrictionBreakerService`、`TwoMinuteFrictionDialog`，在 `HabitActionSheet` 深度集成并通过自动化单元测试覆盖。
 
-
-
+- [x] **F11.2 离线自然语言与语音速记极速打卡引擎 (Offline Natural Language & Voice Quick Logger)** `[P1]`
+  - **灵感**：*TickTick / Fantastical / Notion AI*
+  - **描述**：无需在列表中逐个寻找习惯，支持输入一段话（例如：“喝水 500ml，阅读 15页，心情超好”），本地规则引擎 100% 离线智能解析出对应的习惯、打卡数值、专注时长与情绪评分，支持一键预览与批量打卡。
+  - **落地交付**：实现 `QuickNaturalLoggerService` 解析引擎、首页 AppBar 闪电速记入口、`QuickNaturalLogDialog` 实时解析弹窗与批量提交处理，并通过单元测试验证。

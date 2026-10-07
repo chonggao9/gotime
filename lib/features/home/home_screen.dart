@@ -14,6 +14,8 @@ import 'widgets/habit_action_sheet.dart';
 import 'widgets/confetti_overlay.dart';
 import 'widgets/archived_habits_sheet.dart';
 import 'widgets/routine_play_sheet.dart';
+import 'widgets/two_minute_friction_dialog.dart';
+import 'widgets/quick_natural_log_dialog.dart';
 import '../stats/widgets/share_poster_dialog.dart';
 import 'package:uuid/uuid.dart';
 
@@ -236,6 +238,9 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
         },
+        onTwoMinuteRule: () {
+          _showTwoMinuteDialog(habit);
+        },
         onDelete: () async {
           if (!kIsWeb) {
             await SQLiteService.instance.deleteHabit(habit.id);
@@ -245,6 +250,38 @@ class _HomeScreenState extends State<HomeScreen> {
           _loadHabits();
         },
       ),
+    );
+  }
+
+  void _showTwoMinuteDialog(Habit habit) {
+    TwoMinuteFrictionDialog.show(
+      context,
+      habit: habit,
+      onCompleteMicroStart: (h, note) async {
+        if (!_completedHabitIds.contains(h.id)) {
+          await _toggleHabit(h, note: note);
+        }
+      },
+    );
+  }
+
+  void _showQuickNaturalLogSheet() {
+    QuickNaturalLogDialog.show(
+      context,
+      habits: _habits,
+      onBatchCheckIn: (intents) async {
+        for (final intent in intents) {
+          if (!_completedHabitIds.contains(intent.habit.id)) {
+            await _toggleHabit(
+              intent.habit,
+              value: intent.value,
+              durationSeconds: intent.durationSeconds,
+              mood: intent.mood,
+              note: intent.note,
+            );
+          }
+        }
+      },
     );
   }
 
@@ -294,7 +331,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _toggleHabit(Habit habit) async {
+  Future<void> _toggleHabit(
+    Habit habit, {
+    int? value,
+    int? durationSeconds,
+    int? mood,
+    String? note,
+  }) async {
     final todayStr = DateTime.now().toIso8601String().split('T')[0];
     final bool wasAlreadyCompleted = _completedHabitIds.contains(habit.id);
 
@@ -314,6 +357,10 @@ class _HomeScreenState extends State<HomeScreen> {
           habitId: habit.id,
           date: todayStr,
           status: CheckInStatus.completed,
+          value: value,
+          durationSeconds: durationSeconds,
+          mood: mood,
+          logText: note,
           createdAt: DateTime.now(),
         );
         await SQLiteService.instance.insertCheckIn(checkIn);
@@ -566,6 +613,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 tooltip: '生成今日打卡海报',
                 onPressed: () {
                   SharePosterDialog.show(context);
+                },
+              ),
+              // 自然语言极速速记打卡 (F11.2)
+              IconButton(
+                icon: const Icon(Icons.flash_on_rounded, size: 22),
+                tooltip: '自然语言极速速记打卡',
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _showQuickNaturalLogSheet();
                 },
               ),
               // 休假/冻结模式快捷开关

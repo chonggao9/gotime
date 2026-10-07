@@ -9,6 +9,7 @@ class HabitActionSheet extends StatelessWidget {
   final VoidCallback onTogglePin;
   final VoidCallback onArchive;
   final VoidCallback onDelete;
+  final VoidCallback? onTwoMinuteRule;
 
   const HabitActionSheet({
     super.key,
@@ -18,6 +19,7 @@ class HabitActionSheet extends StatelessWidget {
     required this.onTogglePin,
     required this.onArchive,
     required this.onDelete,
+    this.onTwoMinuteRule,
   });
 
   @override
@@ -67,6 +69,17 @@ class HabitActionSheet extends StatelessWidget {
           const SizedBox(height: 32),
 
           // 操作项列表
+          if (onTwoMinuteRule != null)
+            _buildActionItem(
+              context,
+              icon: Icons.bolt_rounded,
+              label: '两分钟微习惯启动 (破除拖延阻力)',
+              color: const Color(0xFF10B981),
+              onTap: () {
+                Navigator.pop(context);
+                onTwoMinuteRule!();
+              },
+            ),
           _buildActionItem(
             context,
             icon: Icons.edit_note_rounded,

@@ -4,10 +4,12 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/services/freeze_mode_service.dart';
 import '../../../core/services/health_sync_service.dart';
 import '../../../core/services/privacy_lock_service.dart';
+import '../../../core/services/locale_service.dart';
 import '../../../core/services/theme_service.dart';
 import '../../../core/services/webdav_service.dart';
 import 'widgets/backup_dialog.dart';
 import 'widgets/health_sync_dialog.dart';
+import 'widgets/language_selector_sheet.dart';
 import 'widgets/watch_preview_dialog.dart';
 import 'widgets/webdav_dialog.dart';
 import 'widgets/widget_preview_dialog.dart';
@@ -367,11 +369,18 @@ class _SocialScreenState extends State<SocialScreen> {
                     isDark: isDark,
                   ),
                   _buildDivider(isDark),
-                  _buildSettingItem(
-                    icon: Icons.language_rounded,
-                    title: '语言偏好 (Language)',
-                    trailing: const Text('跟随系统', style: TextStyle(color: Colors.grey)),
-                    isDark: isDark,
+                  ListenableBuilder(
+                    listenable: LocaleService.instance,
+                    builder: (context, child) {
+                      final currentLang = LocaleService.instance.currentLanguage;
+                      return _buildSettingAction(
+                        icon: Icons.language_rounded,
+                        title: '语言偏好 (Language)',
+                        subtitle: '${currentLang.flagEmoji} ${currentLang.name}',
+                        onTap: () => LanguageSelectorSheet.show(context),
+                        isDark: isDark,
+                      );
+                    },
                   ),
                   _buildDivider(isDark),
                   _buildSettingAction(

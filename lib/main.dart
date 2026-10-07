@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
+import 'core/services/locale_service.dart';
 import 'core/services/theme_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/common/privacy_lock_overlay.dart';
@@ -27,15 +28,17 @@ class GoTimeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: ThemeService.instance,
+      animation: Listenable.merge([ThemeService.instance, LocaleService.instance]),
       builder: (context, child) {
         final themeService = ThemeService.instance;
+        final localeService = LocaleService.instance;
         return MaterialApp(
           title: 'GoTime',
           debugShowCheckedModeBanner: false,
           theme: themeService.lightTheme,
           darkTheme: themeService.darkTheme,
           themeMode: themeService.themeMode,
+          locale: localeService.locale,
           home: const PrivacyLockOverlay(child: MainLayout()),
         );
       },
@@ -75,18 +78,18 @@ class _MainLayoutState extends State<MainLayout> {
         },
         selectedItemColor: AppTheme.mintGreen,
         unselectedItemColor: Colors.grey,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: '今日',
+            icon: const Icon(Icons.home_filled),
+            label: LocaleService.instance.t('tab_habits'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: '洞察',
+            icon: const Icon(Icons.bar_chart),
+            label: LocaleService.instance.t('tab_stats'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.people_alt),
-            label: '圈子',
+            icon: const Icon(Icons.people_alt),
+            label: LocaleService.instance.t('tab_settings'),
           ),
         ],
       ),

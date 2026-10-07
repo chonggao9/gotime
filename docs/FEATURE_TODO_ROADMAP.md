@@ -137,7 +137,10 @@
 - [x] **F6.3 全景色彩足迹与年度像素年鉴 (Year in Pixels / Annual Habit Panorama)** `[P1]`
   - **灵感**：*Bullet Journal / Everyday / Year in Pixels*
   - **描述**：将全年度 365 天习惯完成度与心情状态映射为 12 个月色彩马赛克矩阵。支持单日悬浮点选详情透视、年度坚持天数/达成率/免责休假多维汇总，并支持一键导出个人成长全景像素画卷长图。
-  - **落地交付**：已实现 `YearInPixelsService` 色彩映射与年度统计引擎、`YearInPixelsDialog` 交互式全景年鉴弹窗、SQLite 真实日期区间跨度查询，并在数据洞察页提供“全景年鉴 🎨”一键启动入口，全部通过单元测试覆盖。
+- [x] **F6.4 多语言国际化全球化引擎 (i18n Localization Engine)** `[P2]`
+  - **灵感**：*Global Productivity Apps (Loop / TickTick)*
+  - **描述**：出海就绪。支持简体中文（🇨🇳 简体中文）、繁体中文（🇭🇰 繁體中文）、英语（🇺🇸 English）与日语（🇯🇵 日本語）实时无感热切换，覆盖底部导航栏、通用操作、核心指标、设置面板及各类成就弹窗。
+  - **落地交付**：已实现响应式 `LocaleService` 全局状态管理、`LanguageSelectorSheet` 交互式语言点选弹窗，并在 `MaterialApp` 入口建立 `Listenable.merge` 双通道响应与单元测试全绿覆盖。
 
 
 

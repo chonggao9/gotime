@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../database/sqlite_service.dart';
 import '../../models/habit.dart';
 import '../../models/check_in.dart';
 
@@ -85,5 +86,29 @@ class BackupService {
     } catch (_) {
       return null;
     }
+  }
+
+  /// 从数据库提取并生成全量 JSON 备份文本
+  static Future<String> exportToJsonString() async {
+    final habits = await SQLiteService.instance.getAllActiveHabits();
+    final archived = await SQLiteService.instance.getArchivedHabits();
+    final allHabits = [...habits, ...archived];
+    final checkIns = await SQLiteService.instance.getCheckInsForYear(DateTime.now().year);
+    return exportToJson(habits: allHabits, checkIns: checkIns);
+  }
+
+  /// 导入并恢复 JSON 数据入库
+  static Future<bool> importFromJsonString(String jsonString) async {
+    final parsed = validateAndParseJson(jsonString);
+    if (parsed == null) return false;
+    final habits = parsed['habits'] as List<Habit>;
+    final checkIns = parsed['check_ins'] as List<CheckIn>;
+    for (final habit in habits) {
+      await SQLiteService.instance.insertHabit(habit);
+    }
+    for (final checkIn in checkIns) {
+      await SQLiteService.instance.insertCheckIn(checkIn);
+    }
+    return true;
   }
 }

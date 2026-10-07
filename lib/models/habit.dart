@@ -14,6 +14,7 @@ class Habit {
   final List<String> reminders;
   final bool isShared;
   final bool isArchived;
+  final bool isPinned;
   final String timeOfDay; // 'all', 'morning', 'afternoon', 'evening'
   final List<String> tags;
   final String? stackedAfterHabitId; // 习惯堆叠前置锚点 ID
@@ -33,6 +34,7 @@ class Habit {
     this.reminders = const [],
     this.isShared = false,
     this.isArchived = false,
+    this.isPinned = false,
     this.timeOfDay = 'all',
     this.tags = const [],
     this.stackedAfterHabitId,
@@ -54,6 +56,7 @@ class Habit {
       reminders: List<String>.from(json['reminders'] ?? []),
       isShared: json['is_shared'] as bool? ?? false,
       isArchived: json['is_archived'] as bool? ?? false,
+      isPinned: json['is_pinned'] == true || json['is_pinned'] == 1,
       timeOfDay: json['time_of_day'] as String? ?? 'all',
       tags: List<String>.from(json['tags'] ?? []),
       stackedAfterHabitId: json['stacked_after_habit_id'] as String?,
@@ -76,11 +79,53 @@ class Habit {
       'reminders': reminders,
       'is_shared': isShared,
       'is_archived': isArchived,
+      'is_pinned': isPinned,
       'time_of_day': timeOfDay,
       'tags': tags,
       'stacked_after_habit_id': stackedAfterHabitId,
       'stacked_after_habit_name': stackedAfterHabitName,
       'updated_at': updatedAt.toIso8601String(),
     };
+  }
+
+  Habit copyWith({
+    String? name,
+    String? iconEmoji,
+    String? themeColor,
+    HabitType? type,
+    int? targetValue,
+    String? targetUnit,
+    int? timerSeconds,
+    Map<String, dynamic>? frequency,
+    List<String>? reminders,
+    bool? isShared,
+    bool? isArchived,
+    bool? isPinned,
+    String? timeOfDay,
+    List<String>? tags,
+    String? stackedAfterHabitId,
+    String? stackedAfterHabitName,
+    DateTime? updatedAt,
+  }) {
+    return Habit(
+      id: id,
+      name: name ?? this.name,
+      iconEmoji: iconEmoji ?? this.iconEmoji,
+      themeColor: themeColor ?? this.themeColor,
+      type: type ?? this.type,
+      targetValue: targetValue ?? this.targetValue,
+      targetUnit: targetUnit ?? this.targetUnit,
+      timerSeconds: timerSeconds ?? this.timerSeconds,
+      frequency: frequency ?? this.frequency,
+      reminders: reminders ?? this.reminders,
+      isShared: isShared ?? this.isShared,
+      isArchived: isArchived ?? this.isArchived,
+      isPinned: isPinned ?? this.isPinned,
+      timeOfDay: timeOfDay ?? this.timeOfDay,
+      tags: tags ?? this.tags,
+      stackedAfterHabitId: stackedAfterHabitId ?? this.stackedAfterHabitId,
+      stackedAfterHabitName: stackedAfterHabitName ?? this.stackedAfterHabitName,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
 }

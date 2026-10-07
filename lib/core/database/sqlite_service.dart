@@ -40,6 +40,9 @@ class SQLiteService {
         try {
           await db.execute("ALTER TABLE habits ADD COLUMN stacked_after_habit_name TEXT");
         } catch (_) {}
+        try {
+          await db.execute("ALTER TABLE habits ADD COLUMN is_pinned INTEGER DEFAULT 0");
+        } catch (_) {}
       },
     );
   }
@@ -79,6 +82,7 @@ CREATE TABLE habits (
   reminders $textType,
   is_shared $boolType,
   is_archived $boolType,
+  is_pinned $boolType,
   time_of_day $textNull,
   tags $textNull,
   stacked_after_habit_id $textNull,
@@ -119,6 +123,7 @@ CREATE TABLE check_ins (
     // SQLite 不支持 bool，转成 0 或 1
     map['is_shared'] = habit.isShared ? 1 : 0;
     map['is_archived'] = habit.isArchived ? 1 : 0;
+    map['is_pinned'] = habit.isPinned ? 1 : 0;
     
     // 使用 replace 防止主键冲突时报错
     await db.insert('habits', map, conflictAlgorithm: ConflictAlgorithm.replace);
@@ -130,7 +135,7 @@ CREATE TABLE check_ins (
       'habits',
       where: 'is_archived = ?',
       whereArgs: [0], // 0 代表 false
-      orderBy: 'updated_at DESC',
+      orderBy: 'is_pinned DESC, updated_at DESC',
     );
 
     return result.map((json) {
@@ -143,6 +148,7 @@ CREATE TABLE check_ins (
       // SQLite 中 Boolean 存为 Integer (0 或 1)
       map['is_shared'] = map['is_shared'] == 1;
       map['is_archived'] = map['is_archived'] == 1;
+      map['is_pinned'] = map['is_pinned'] == 1;
       return Habit.fromJson(map);
     }).toList();
   }
@@ -155,6 +161,7 @@ CREATE TABLE check_ins (
     map['tags'] = jsonEncode(map['tags']);
     map['is_shared'] = habit.isShared ? 1 : 0;
     map['is_archived'] = habit.isArchived ? 1 : 0;
+    map['is_pinned'] = habit.isPinned ? 1 : 0;
     
     return db.update(
       'habits',
@@ -169,6 +176,19 @@ CREATE TABLE check_ins (
     // 由于设置了 ON DELETE CASCADE，这里删除 habit 时会自动删除底下的 check_ins
     return await db.delete(
       'habits',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> pinHabit(String id, bool isPinned) async {
+    final db = await instance.database;
+    return await db.update(
+      'habits',
+      {
+        'is_pinned': isPinned ? 1 : 0,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -204,6 +224,7 @@ CREATE TABLE check_ins (
       map['time_of_day'] = map['time_of_day'] ?? 'all';
       map['is_shared'] = map['is_shared'] == 1;
       map['is_archived'] = map['is_archived'] == 1;
+      map['is_pinned'] = map['is_pinned'] == 1;
       return Habit.fromJson(map);
     }).toList();
   }

@@ -6,6 +6,7 @@ class HabitActionSheet extends StatelessWidget {
   final Habit habit;
   final VoidCallback onWriteLog;
   final VoidCallback onSkipToday;
+  final VoidCallback onTogglePin;
   final VoidCallback onArchive;
   final VoidCallback onDelete;
 
@@ -14,6 +15,7 @@ class HabitActionSheet extends StatelessWidget {
     required this.habit,
     required this.onWriteLog,
     required this.onSkipToday,
+    required this.onTogglePin,
     required this.onArchive,
     required this.onDelete,
   });
@@ -71,6 +73,16 @@ class HabitActionSheet extends StatelessWidget {
             label: '记录打卡心得与心情',
             color: isDark ? Colors.white : Colors.black87,
             onTap: onWriteLog,
+          ),
+          _buildActionItem(
+            context,
+            icon: habit.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
+            label: habit.isPinned ? '取消置顶' : '置顶该习惯 (Pin to top)',
+            color: Colors.amber[600]!,
+            onTap: () {
+              Navigator.pop(context);
+              onTogglePin();
+            },
           ),
           _buildActionItem(
             context,

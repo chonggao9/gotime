@@ -180,6 +180,28 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
         },
+        onTogglePin: () async {
+          HapticFeedback.mediumImpact();
+          final newPinned = !habit.isPinned;
+          if (!kIsWeb) {
+            await SQLiteService.instance.pinHabit(habit.id, newPinned);
+          } else {
+            final index = _habits.indexWhere((h) => h.id == habit.id);
+            if (index != -1) {
+              _habits[index] = habit.copyWith(isPinned: newPinned);
+              _habits.sort((a, b) => (b.isPinned ? 1 : 0).compareTo(a.isPinned ? 1 : 0));
+            }
+          }
+          _loadHabits();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(newPinned ? '已置顶习惯「${habit.name}」📌' : '已取消置顶「${habit.name}」'),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
         onArchive: () async {
           HapticFeedback.mediumImpact();
           if (!kIsWeb) {

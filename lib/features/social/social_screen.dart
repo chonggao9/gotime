@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/freeze_mode_service.dart';
 import '../../../core/services/theme_service.dart';
+import '../../../core/services/webdav_service.dart';
 import 'widgets/backup_dialog.dart';
+import 'widgets/webdav_dialog.dart';
 import 'widgets/widget_preview_dialog.dart';
 
 class SocialScreen extends StatefulWidget {
@@ -324,6 +326,18 @@ class _SocialScreenState extends State<SocialScreen> {
                     title: '导出打卡数据报表 (CSV)',
                     subtitle: '可在 Excel / Notion 中离线分析',
                     onTap: () => BackupDialog.show(context, isExportCsv: true),
+                    isDark: isDark,
+                  ),
+                  _buildDivider(isDark),
+                  _buildSettingAction(
+                    icon: Icons.cloud_sync_rounded,
+                    title: 'WebDAV 私有网盘双向同步',
+                    subtitle: WebDavService.instance.isConfigured
+                        ? '已配置云端，支持坚果云/私有网盘一键双向同步'
+                        : '支持坚果云 / Nextcloud / 群晖私密备份与恢复',
+                    onTap: () => WebDavDialog.show(context, onRestored: () {
+                      if (mounted) setState(() {});
+                    }),
                     isDark: isDark,
                   ),
                 ],

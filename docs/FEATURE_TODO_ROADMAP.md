@@ -96,7 +96,20 @@
   - **描述**：在数据洞察页热力图下方，结合抗焦虑心理学模型生成每周温情复盘卡片（统计本周打卡天数、合法免责请假天数、零负荷心理自愈寄语），并支持一键生成杂志级周报海报分享。
   - **落地交付**：已在 `StatsScreen` 中落地 `_buildWeeklyReviewCard` 与周报分享海报生成联动。
 
-- [ ] **F4.4 端到端加密云备份与多端私有同步 (E2EE Cloud Sync)** `[P3]`
-  - **描述**：支持 WebDAV / 坚果云 / Google Drive 远端自动私密同步。
+- [x] **F4.4 WebDAV 私有网盘双向云同步与自动备份 (WebDAV Cloud Sync)** `[P2]`
+  - **描述**：支持坚果云、Nextcloud、群晖 NAS 等私有网盘，通过标准 WebDAV 协议进行全量打卡数据双向私密同步与灾备，无需依赖任何第三方闭源服务。
+  - **落地交付**：已实现纯 Dart 标准 HTTP Basic 认证 `WebDavService` 与 `WebDavDialog` 交互弹窗，支持连接验证、一键备份至云端、从云端拉取恢复，并通过单元测试验证。
+
+- [x] **F4.5 习惯置顶锁定与优先级排序 (Habit Pinning)** `[P2]`
+  - **描述**：允许将晨间温水、深度工作等核心习惯长按置顶（Pin to Top），在主页打卡列表中始终排在最前面并显示专属金色图钉徽章 📌。
+  - **落地交付**：已在 `Habit` 模型增加 `isPinned` 属性与 SQLite 迁移，在 `HabitActionSheet` 提供“置顶 / 取消置顶”操作，在 `HabitCard` 渲染图钉徽章，并通过单元测试验证。
+
+---
+
+## 阶段五：前沿探索与多模态交互 (Phase 5: Future Explorations)
+
+- [ ] **F5.1 苹果健康与安卓 Health Connect 步数/睡眠自动打卡 (Health Auto Tracking)** `[P3]`
+- [ ] **F5.2 智能手表 Wear OS / watchOS 独立微端打卡 (Watch Extension)** `[P3]`
+
 
 

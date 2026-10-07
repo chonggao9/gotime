@@ -224,6 +224,17 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
                                 ),
                                 child: Text(widget.habit.name),
                               ),
+                              if (widget.habit.isPinned) ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Text('📌', style: TextStyle(fontSize: 10)),
+                                ),
+                              ],
                               if (widget.isSkipped) ...[
                                 const SizedBox(width: 8),
                                 Container(

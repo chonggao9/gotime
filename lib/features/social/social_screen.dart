@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/freeze_mode_service.dart';
+import '../../../core/services/health_sync_service.dart';
+import '../../../core/services/privacy_lock_service.dart';
 import '../../../core/services/theme_service.dart';
 import '../../../core/services/webdav_service.dart';
 import 'widgets/backup_dialog.dart';
+import 'widgets/health_sync_dialog.dart';
 import 'widgets/webdav_dialog.dart';
 import 'widgets/widget_preview_dialog.dart';
 
@@ -297,12 +300,60 @@ class _SocialScreenState extends State<SocialScreen> {
                     isDark: isDark,
                   ),
                   _buildDivider(isDark),
-                  _buildSettingSwitch(
-                    icon: Icons.fingerprint_rounded,
-                    title: '隐私安全锁',
-                    subtitle: '后台切回时需 FaceID 解锁',
-                    value: _isPrivacyLockEnabled,
-                    onChanged: (val) => setState(() => _isPrivacyLockEnabled = val),
+                  ListenableBuilder(
+                    listenable: PrivacyLockService.instance,
+                    builder: (context, child) {
+                      final isLockedEnabled = PrivacyLockService.instance.isLockEnabled;
+                      return Column(
+                        children: [
+                          _buildSettingSwitch(
+                            icon: Icons.fingerprint_rounded,
+                            title: '隐私安全锁 (PIN / 生物识别)',
+                            subtitle: isLockedEnabled ? '切后台保护中 · 点击右侧可临时锁定' : '后台切回时需输入 PIN 码 (默认 1234)',
+                            value: isLockedEnabled,
+                            onChanged: (val) {
+                              PrivacyLockService.instance.setLockEnabled(val);
+                              if (val) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('已开启隐私安全锁，PIN 码默认为 1234'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            },
+                            isDark: isDark,
+                          ),
+                          if (isLockedEnabled)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 56, right: 16, bottom: 8),
+                              child: Row(
+                                children: [
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      PrivacyLockService.instance.lock();
+                                    },
+                                    icon: const Icon(Icons.lock_outline_rounded, size: 16),
+                                    label: const Text('立即锁定测试', style: TextStyle(fontSize: 12)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                  _buildDivider(isDark),
+                  _buildSettingAction(
+                    icon: Icons.favorite_rounded,
+                    title: '系统健康数据自动打卡 (Health Sync)',
+                    subtitle: '关联 Apple Health / 步数与睡眠数据无感自动打卡',
+                    onTap: () => HealthSyncDialog.show(
+                      context,
+                      onSyncCompleted: () {
+                        if (mounted) setState(() {});
+                      },
+                    ),
                     isDark: isDark,
                   ),
                   _buildDivider(isDark),

@@ -6,6 +6,7 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 import 'core/services/theme_service.dart';
 import 'core/theme/app_theme.dart';
+import 'features/common/privacy_lock_overlay.dart';
 import 'features/home/home_screen.dart';
 import 'features/stats/stats_screen.dart';
 import 'features/social/social_screen.dart';
@@ -35,7 +36,7 @@ class GoTimeApp extends StatelessWidget {
           theme: themeService.lightTheme,
           darkTheme: themeService.darkTheme,
           themeMode: themeService.themeMode,
-          home: const MainLayout(),
+          home: const PrivacyLockOverlay(child: MainLayout()),
         );
       },
     );

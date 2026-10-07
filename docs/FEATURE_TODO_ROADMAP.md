@@ -106,10 +106,17 @@
 
 ---
 
-## 阶段五：前沿探索与多模态交互 (Phase 5: Future Explorations)
+## 阶段五：前沿探索与隐私守护 (Phase 5: Hardware & Privacy Guardian)
 
-- [ ] **F5.1 苹果健康与安卓 Health Connect 步数/睡眠自动打卡 (Health Auto Tracking)** `[P3]`
-- [ ] **F5.2 智能手表 Wear OS / watchOS 独立微端打卡 (Watch Extension)** `[P3]`
+- [x] **F5.1 苹果健康与安卓 Health Connect 步数/睡眠自动打卡 (Health Auto Tracking)** `[P3]`
+  - **描述**：集成系统级运动健康传感器数据（Apple Health / Android Health Connect），智能识别每日步数、睡眠时长并自动感应达标，实现无感自动打卡与日志记录。
+  - **落地交付**：已实现 `HealthSyncService`、`HealthSyncDialog` 传感器控制台面板，支持步数/睡眠智能达标判定、自动写入打卡数据库，并由单元测试全面覆盖。
+
+- [x] **F5.2 生物识别与 4 位 PIN 隐私安全锁 (Biometric Privacy & PIN Lock)** `[P2]`
+  - **描述**：提供银行级隐私保护，App 退至后台或闲置时自动进入高斯模糊锁屏，支持 FaceID / 指纹触控或 4 位数字密码解锁，确保自律日记与打卡足迹私密安全。
+  - **落地交付**：已实现 `PrivacyLockService` 全局状态管理、`PrivacyLockOverlay` 磨砂毛玻璃全屏遮罩与触感九宫格数字键盘，集成于主入口并接入生命周期监听与单元测试。
+
+- [ ] **F5.3 智能手表 Wear OS / watchOS 独立微端打卡 (Watch Extension)** `[P3]`
 
 
 

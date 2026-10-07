@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
-import 'package:sqflite/sqflite.dart';
 
+import 'core/services/theme_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/home_screen.dart';
 import 'features/stats/stats_screen.dart';
@@ -21,23 +21,29 @@ void main() {
 }
 
 class GoTimeApp extends StatelessWidget {
-  const GoTimeApp({Key? key}) : super(key: key);
+  const GoTimeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'GoTime',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system, // 默认跟随系统
-      home: const MainLayout(),
+    return AnimatedBuilder(
+      animation: ThemeService.instance,
+      builder: (context, child) {
+        final themeService = ThemeService.instance;
+        return MaterialApp(
+          title: 'GoTime',
+          debugShowCheckedModeBanner: false,
+          theme: themeService.lightTheme,
+          darkTheme: themeService.darkTheme,
+          themeMode: themeService.themeMode,
+          home: const MainLayout(),
+        );
+      },
     );
   }
 }
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({Key? key}) : super(key: key);
+  const MainLayout({super.key});
 
   @override
   State<MainLayout> createState() => _MainLayoutState();

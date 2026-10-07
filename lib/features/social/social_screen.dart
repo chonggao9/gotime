@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/freeze_mode_service.dart';
+import '../../../core/services/theme_service.dart';
 import 'widgets/backup_dialog.dart';
+import 'widgets/widget_preview_dialog.dart';
 
 class SocialScreen extends StatefulWidget {
   const SocialScreen({super.key});
@@ -112,11 +114,138 @@ class _SocialScreenState extends State<SocialScreen> {
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 32),
+
+            // 外观主题与色彩模块
+            Text(
+              '外观与品牌个性化',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  if (!isDark)
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('深浅模式', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _buildThemeChip(
+                        label: '极夜暗黑',
+                        icon: Icons.dark_mode_rounded,
+                        isSelected: ThemeService.instance.themeMode == ThemeMode.dark,
+                        onTap: () => ThemeService.instance.setThemeMode(ThemeMode.dark),
+                        isDark: isDark,
+                        primary: ThemeService.instance.brandColor.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      _buildThemeChip(
+                        label: '晨曦微白',
+                        icon: Icons.light_mode_rounded,
+                        isSelected: ThemeService.instance.themeMode == ThemeMode.light,
+                        onTap: () => ThemeService.instance.setThemeMode(ThemeMode.light),
+                        isDark: isDark,
+                        primary: ThemeService.instance.brandColor.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      _buildThemeChip(
+                        label: '随系统',
+                        icon: Icons.brightness_auto_rounded,
+                        isSelected: ThemeService.instance.themeMode == ThemeMode.system,
+                        onTap: () => ThemeService.instance.setThemeMode(ThemeMode.system),
+                        isDark: isDark,
+                        primary: ThemeService.instance.brandColor.primary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  const Text('品牌主色调', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: BrandColor.values.map((bc) {
+                      final isSelected = ThemeService.instance.brandColor == bc;
+                      return GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          ThemeService.instance.setBrandColor(bc);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected ? bc.primary.withOpacity(0.18) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected ? bc.primary : (isDark ? Colors.white12 : Colors.grey[300]!),
+                              width: isSelected ? 2 : 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: bc.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                bc.name,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: isDark ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDivider(isDark),
+
+                  _buildSettingAction(
+                    icon: Icons.widgets_rounded,
+                    title: '桌面小组件工坊 (Widgets)',
+                    subtitle: '配置与预览 2×2 / 4×2 手机桌面小组件',
+                    onTap: () => WidgetPreviewDialog.show(context),
+                    isDark: isDark,
+                  ),
+                ],
+              ),
+            ),
             
+            const SizedBox(height: 32),
+
             // 高级设置模块
             Text(
-              '高级设置',
+              '高级与安全设置',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -430,4 +559,50 @@ class _SocialScreenState extends State<SocialScreen> {
       child: Divider(height: 1, color: isDark ? Colors.grey[800] : Colors.grey[200]),
     );
   }
+
+  Widget _buildThemeChip({
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDark,
+    required Color primary,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? primary.withOpacity(0.18) : (isDark ? Colors.grey[850] : Colors.grey[100]),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? primary : Colors.transparent,
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: isSelected ? primary : Colors.grey),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? primary : (isDark ? Colors.white70 : Colors.black87),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
+

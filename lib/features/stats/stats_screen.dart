@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/services/theme_service.dart';
 import 'widgets/heatmap_calendar.dart';
 import 'widgets/share_poster_dialog.dart';
 
@@ -121,6 +122,14 @@ class _StatsScreenState extends State<StatsScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: HeatmapCalendar(data: _generateMockData()),
+            ),
+          ),
+
+          // 本周温情复盘报告卡 (自我关怀与动量)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 8.0),
+              child: _buildWeeklyReviewCard(isDark, ThemeService.instance.brandColor.primary),
             ),
           ),
           
@@ -299,4 +308,143 @@ class _StatsScreenState extends State<StatsScreen> {
       ),
     );
   }
+
+  Widget _buildWeeklyReviewCard(bool isDark, Color primaryColor) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF16201D) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: primaryColor.withOpacity(0.2),
+          width: 1.2,
+        ),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: primaryColor.withOpacity(0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text('🌿', style: const TextStyle(fontSize: 16)),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '本周习惯动量复盘',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '基于抗焦虑心理学模型自愈总结',
+                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              TextButton.icon(
+                onPressed: () {
+                  SharePosterDialog.show(
+                    context,
+                    streakDays: 12,
+                    strengthPercent: 88,
+                    strengthLabel: '🌿 稳步成型',
+                    quote: '本周你完成了 5 天打卡，合法免责休假 2 天。日拱一卒，慢慢来会更快。',
+                  );
+                },
+                icon: const Icon(Icons.ios_share_rounded, size: 15),
+                label: const Text('分享周报'),
+                style: TextButton.styleFrom(
+                  foregroundColor: primaryColor,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // 核心胶囊数据行
+          Row(
+            children: [
+              _buildMiniMetric('持续打卡', '5 天', '✓ 专注执行', primaryColor, isDark),
+              const SizedBox(width: 8),
+              _buildMiniMetric('合法休假', '2 天', '❄️ 锁定连胜', const Color(0xFF0284C7), isDark),
+              const SizedBox(width: 8),
+              _buildMiniMetric('心理内耗', '0 负荷', '🛡️ 无罪恶感', Colors.amber[700]!, isDark),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // 暖心心理学寄语
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white.withOpacity(0.04) : Colors.grey[100],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('💡 ', style: TextStyle(fontSize: 14)),
+                Expanded(
+                  child: Text(
+                    '“你不需要逼自己做超人。适时停下来合法休假，本身就是长期主义最宝贵的能力。下周继续保持现在的节奏就好。”',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.45,
+                      color: isDark ? Colors.white70 : Colors.black87,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniMetric(String label, String val, String tip, Color color, bool isDark) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: TextStyle(fontSize: 10, color: isDark ? Colors.grey[400] : Colors.grey[600])),
+            const SizedBox(height: 4),
+            Text(val, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color)),
+            const SizedBox(height: 2),
+            Text(tip, style: TextStyle(fontSize: 9, color: color.withOpacity(0.8))),
+          ],
+        ),
+      ),
+    );
+  }
 }
+

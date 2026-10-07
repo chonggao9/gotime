@@ -57,11 +57,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '外观模式',
+                    '模式',
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.grey[500] : Colors.grey[500],
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -100,9 +100,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     '主题色',
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.grey[500] : Colors.grey[500],
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -199,7 +199,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           _buildSettingSwitch(
                             icon: Icons.lock_rounded,
-                            title: '隐私安全锁',
+                            title: '应用锁',
                             value: isLockEnabled,
                             onChanged: (val) {
                               if (val) {
@@ -252,7 +252,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // 防沉迷屏障
                   _buildSettingAction(
                     icon: Icons.shield_rounded,
-                    title: '防沉迷呼吸屏障',
+                    title: '防沉迷屏障',
                     onTap: () => MindfulShieldDialog.show(context),
                     isDark: isDark,
                   ),
@@ -300,7 +300,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // 本地数据备份
                   _buildSettingAction(
                     icon: Icons.save_alt_rounded,
-                    title: '数据备份 (JSON)',
+                    title: '备份',
                     onTap: () => BackupDialog.show(context, isExportCsv: false),
                     isDark: isDark,
                   ),
@@ -309,7 +309,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // CSV 导出
                   _buildSettingAction(
                     icon: Icons.table_chart_rounded,
-                    title: '数据导出 (CSV)',
+                    title: '导出 CSV',
                     onTap: () => BackupDialog.show(context, isExportCsv: true),
                     isDark: isDark,
                   ),
@@ -318,7 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // WebDAV 同步
                   _buildSettingAction(
                     icon: Icons.cloud_sync_rounded,
-                    title: 'WebDAV 云同步',
+                    title: 'WebDAV',
                     trailingText: WebDavService.instance.isConfigured ? '已配置' : null,
                     onTap: () => WebDavDialog.show(context, onRestored: () {
                       if (mounted) setState(() {});
@@ -327,10 +327,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   _buildDivider(isDark),
 
-                  // 多端设备同步
+                  // 云端同步
                   _buildSettingAction(
                     icon: Icons.devices_rounded,
-                    title: '多端设备同步',
+                    title: '云端同步',
                     onTap: () => CloudSyncDialog.show(context),
                     isDark: isDark,
                   ),

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/services/quit_habit_service.dart';
+import '../../../core/utils/counter_step_helper.dart';
 import '../../../models/habit.dart';
 import '../../timer/timer_screen.dart';
 import '../../stats/habit_detail_screen.dart';
+import 'quit_habit_rescue_dialog.dart';
+import 'quick_counter_sheet.dart';
 
 class HabitCard extends StatefulWidget {
   final Habit habit;
@@ -77,14 +81,34 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
 
   void _incrementCounter() {
     if (widget.isCompleted || widget.isSkipped) return;
+    final target = widget.habit.targetValue ?? 100;
+    final step = CounterStepHelper.deduceDefaultStep(target, widget.habit.targetUnit);
     HapticFeedback.lightImpact();
     setState(() {
-      _currentCounterValue += 250;
-      if (_currentCounterValue >= (widget.habit.targetValue ?? 0)) {
-        _currentCounterValue = widget.habit.targetValue ?? 0;
+      _currentCounterValue += step;
+      if (_currentCounterValue >= target) {
+        _currentCounterValue = target;
         widget.onToggle(); 
       }
     });
+  }
+
+  void _openQuickCounter() {
+    if (widget.isCompleted || widget.isSkipped) return;
+    HapticFeedback.selectionClick();
+    QuickCounterSheet.show(
+      context,
+      habit: widget.habit,
+      initialValue: _currentCounterValue,
+      onSave: (val) {
+        setState(() {
+          _currentCounterValue = val;
+          if (_currentCounterValue >= (widget.habit.targetValue ?? 100)) {
+            widget.onToggle();
+          }
+        });
+      },
+    );
   }
 
   void _handleActionTap() {
@@ -96,6 +120,11 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
           duration: Duration(milliseconds: 2000),
         ),
       );
+      return;
+    }
+
+    if (widget.habit.type == HabitType.quit) {
+      QuitHabitRescueDialog.show(context, widget.habit);
       return;
     }
 
@@ -257,12 +286,33 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
                           ),
                           if (widget.habit.type == HabitType.counter && widget.habit.targetValue != null) ...[
                             const SizedBox(height: 4),
+                            InkWell(
+                              onTap: _openQuickCounter,
+                              borderRadius: BorderRadius.circular(6),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '$_currentCounterValue / ${widget.habit.targetValue} ${widget.habit.targetUnit}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(Icons.tune_rounded, size: 14, color: isDark ? Colors.grey[500] : Colors.grey[400]),
+                                ],
+                              ),
+                            ),
+                          ],
+                          if (widget.habit.type == HabitType.quit) ...[
+                            const SizedBox(height: 4),
                             Text(
-                              '$_currentCounterValue / ${widget.habit.targetValue} ${widget.habit.targetUnit}',
+                              '已戒除节制中 · 点击右侧可深呼吸急救',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 12,
                                 color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -320,13 +370,22 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
       );
     }
     if (widget.habit.type == HabitType.quit) {
+      final progress = QuitHabitService.instance.getProgress(widget.habit.id, widget.habit.updatedAt);
+      final label = progress.daysClean > 0 ? '${progress.daysClean}天' : '${progress.hoursCleanRemainder}h';
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: isDark ? Colors.red[900]?.withValues(alpha: 0.3) : Colors.red[50],
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
         ),
-        child: const Text('🔥 12天', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🔥 ', style: TextStyle(fontSize: 12)),
+            Text(label, style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 13)),
+          ],
+        ),
       );
     }
     if (widget.habit.type == HabitType.timer) {
@@ -343,14 +402,17 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
       );
     }
     if (widget.habit.type == HabitType.counter && !widget.isCompleted) {
-      return Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: isDark ? Colors.grey[800] : Colors.grey[100],
-          shape: BoxShape.circle,
+      return GestureDetector(
+        onLongPress: _openQuickCounter,
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: isDark ? Colors.grey[800] : Colors.grey[100],
+            shape: BoxShape.circle,
+          ),
+          child: Icon(Icons.add_rounded, color: isDark ? Colors.white70 : Colors.black87, size: 28),
         ),
-        child: Icon(Icons.add_rounded, color: isDark ? Colors.white70 : Colors.black87, size: 28),
       );
     }
     return Container(

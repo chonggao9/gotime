@@ -162,6 +162,25 @@
   - **描述**：科学分时段温和唤醒，避免信息轰炸。支持三大时段调度（晨间唤醒 08:00、午间回能 13:00、晚间复盘 21:00），支持 24 小时任意时间微调与总控开关；内置夜间深度睡眠免打扰（Quiet Hours: 22:30 ~ 07:00，跨午夜高精度分钟级判定）；支持模拟测试推送。
   - **落地交付**：实现 `ReminderService`、`ReminderSettingsDialog` 弹窗，支持全天提醒概要预览与免打扰逻辑跨午夜自动化测试验证。
 
+---
+
+## 阶段八：坏习惯戒断防护与精细量化度量 (Phase 8: Habit Precision & Bad Habit Urge Surfing)
+
+- [x] **F8.1 坏习惯坚持戒除计时与冲动急救冲浪 (Quit Bad Habit Tracker & Urge Surfing Rescue)** `[P0]`
+  - **灵感**：*I Am Sober / Atomic Habits / Mindfulness Psychology*
+  - **核心准则**：**正向累计坚守时长，以认知解离与自我宽恕（Self-Compassion）替代羞耻感**。
+  - **描述**：
+    - 针对戒烟 🚭、戒糖 🍰、戒游戏 🎮 等坏习惯，卡片渲染实时正向计时器（例如 `🔥 已坚守 14 天 6 小时`）；
+    - 点击操作区呼出 **“冲动急救冲浪”** 弹窗，提供 4-7-8 呼吸动效（吸气 4s $\rightarrow$ 屏息 7s $\rightarrow$ 呼气 8s）与 180 秒冲动峰值平息倒计时；
+    - 若发生破戒，提供无指责复盘（诱因记录：压力、无聊、聚会诱惑等）与自我宽恕便签，重置计时器重新起航。
+  - **落地交付**：实现 `QuitHabitService`、`QuitHabitRescueDialog`，并在 `HabitCard` 中深度集成并通过单元测试验证。
+
+- [x] **F8.2 数值型习惯智能步进器与精准量化输入 (Smart Counter Stepper & Direct Value Pad)** `[P1]`
+  - **灵感**：*Streaks / Loop Habit Tracker*
+  - **描述**：解决数值打卡步进生硬机械问题。基于目标单位（ml, km, 页, 分钟, 杯等）与总目标自动推导最佳单次点击步进量（如喝水 +250ml、运动 +1km、读书 +5页）；支持长按加号或点击数值直接弹出快捷微调面板（QuickCounterSheet），支持拖拽进度滑块与数字键盘直达。
+  - **落地交付**：实现 `CounterStepHelper` 自适应步进推导、`QuickCounterSheet` 交互面板与 `HabitCard` 点击/长按联动，全套单元测试通过。
+
+
 
 
 

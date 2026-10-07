@@ -119,7 +119,7 @@
 
 - [x] **F5.3 智能手表 Wear OS / watchOS 独立微端打卡 (Watch Extension & Dial Companion)** `[P3]`
   - **描述**：腕上独立微端打卡体验。支持 Apple Watch 方形（Squircle）与 Pixel / Galaxy Watch 圆形（Round）物理表壳拟真仿真、表冠（Digital Crown）触感交互、实时同步置顶微习惯并支持一键抬腕即打卡与表盘复杂功能（Complications）。
-  - **落地交付**：已实现 `WatchCompanionService`、`WatchPreviewDialog` 拟真 OLED 硬件仿真弹窗，在【圈子与设置】中提供配置入口，并通过单元测试全面验证。
+  - **落地交付**：已实现 `WatchCompanionService`、`WatchPreviewDialog` 拟真 OLED 硬件仿真弹窗，在【系统设置】(`SettingsScreen`) 中提供配置入口，并通过单元测试全面验证。
 
 ---
 
@@ -155,7 +155,7 @@
     - 🙌 **击掌鼓劲**（“太棒了！今天也一起达成了全勤自律！”）
     - ❄️ **赠送请假卡**（“今天累了就好好休息，我帮你守护连胜！”）
     - 🌟 **加油应援**（自定义鼓励便签回音壁）
-  - **落地交付**：实现 `BuddyService`、`BuddyPairingDialog`、互勉动态时间轴与双轨打卡对比，全面集成在【圈子与设置】页并通过单元测试。
+  - **落地交付**：实现 `BuddyService`、`BuddyPairingDialog`、互勉动态时间轴与双轨打卡对比，全面集成在独立的【自律圈子】(`CommunityScreen`) 页并通过单元测试。
 
 - [x] **F7.2 智能时段提醒与全局静音免打扰调度 (Smart Habit Reminders & Quiet Hours DND Engine)** `[P0]`
   - **灵感**：*TickTick / Fabulous / Apple Sleep Focus*
@@ -187,7 +187,7 @@
 - [x] **F9.1 云端多端增量合并同步与跨设备游客桥接 (Cloud Sync & Multi-Device Seamless Bridge)** `[P0]`
   - **灵感**：*Apple iCloud / Local-First Software Philosophy*
   - **描述**：兼顾“本地优先隐私”与“多设备无缝漫游”。支持多设备集群管理（Web 客户端、iPhone、Apple Watch 等），支持一键关联账号，采用 Last-Write-Wins (LWW) 增量数据双向哈希校验与版本合库，保护本地离线打卡历史零丢失。
-  - **落地交付**：实现 `CloudSyncService`、`CloudSyncDialog`，在【圈子与设置】中提供设备集群拓扑卡片、WiFi 自动同步与手动一键合库操作，并通过 9/9 单元测试。
+  - **落地交付**：实现 `CloudSyncService`、`CloudSyncDialog`，在【系统设置】(`SettingsScreen`) 中提供设备集群拓扑卡片、WiFi 自动同步与手动一键合库操作，并通过 9/9 单元测试。
 
 - [x] **F9.2 习惯自定义拖拽排序与执行节律编排 (Custom Drag Reordering & Daily Rhythm)** `[P1]`
   - **灵感**：*Things 3 / TickTick / Notion*
@@ -254,7 +254,25 @@
   - **灵感**：*One Sec / Opal / 《原子习惯》在冲动与反应之间插入摩擦阻力*
   - **核心准则**：**面对手机无意识抓取与短视频多巴胺诱惑，不粗暴打压，而是提供 15 秒深呼吸正念缓冲，重夺前额叶皮层主导权**。
   - **描述**：在专注或日常工作遇到阻力时，一键启动正念自律屏障；伴随 15 秒平缓呼吸倒计时与呼吸光晕（“停顿片刻 · 觉察冲动 · 深吸气后慢慢呼出...”），提供常见冲动诱因觉察（无聊摸手机、遇到困难想逃避、渴望即时多巴胺等），战胜冲动后自动计入今日成就勋章并记录觉察日志。
-  - **落地交付**：实现 `MindfulShieldService`、`MindfulShieldDialog` 极简呼吸冷却面板，并在 `TimerScreen` 专注控制区及 `SocialScreen` 极简设置区中无缝联动，通过自动化单元测试全覆盖。
+  - **落地交付**：实现 `MindfulShieldService`、`MindfulShieldDialog` 极简呼吸冷却面板，并在 `TimerScreen` 专注控制区及 `SettingsScreen` 系统设置区中无缝联动，通过自动化单元测试全覆盖。
+
+- [x] **F13.3 导航架构重构：自律圈子与系统设置解耦分立 (4-Column Dedicated Navigation Architecture)** `[P0]`
+  - **背景**：随着功能矩阵持续扩展，原【圈子与设置】聚合页职责承载过载。根据业务语义将轻社交同盟与系统底层设置严格分立。
+  - **核心准则**：**各司其职，底栏 4 列固定布局（`BottomNavigationBarType.fixed`），消除切换抖动与挤压变形**。
+  - **描述**：
+    - **【自律圈子】(`CommunityScreen`)**：独立一级入口。聚合习惯搭子结对、双轨打卡对比、4项温暖互动（碰拳/加油/送水/拥抱）、圈子留言板、善意信箱精选卡片与里程碑荣誉殿堂；
+    - **【系统设置】(`SettingsScreen`)**：独立一级入口。聚合主题与个性化、桌面小组件工坊、手表微伴侣、隐私安全锁、正念自律屏障、健康步数、多语言切换、本地备份导出、WebDAV 私有云、隐私政策与账号粉碎；
+    - 兼容性：`SocialScreen` 平滑保留类型别名并过渡至 `CommunityScreen`，全局多语言新增 `tab_community` / `tab_settings`。
+  - **落地交付**：重构 `MainLayout` 为 4 列导航架构，新增 `CommunityScreen` 与 `SettingsScreen`，更新国际化语言表与测试用例，全量 110 项自动化测试 100% 通过。
+
+- [x] **F13.4 Google Play & App Store 隐私合规与协议内嵌 (Bilingual Privacy Policy & In-App Portal)** `[P0]`
+  - **背景**：满足 Google Play 目标 API 34+ 最新开发者政策、Google Health Connect 强制数据披露条款与 Apple App Store Guideline 5.1.1 审核死线。
+  - **核心准则**：**本地优先极致透明，零云端遥测，零商业广告画像，用户数据 100% 自主掌控**。
+  - **描述**：
+    - 编写正式规范的专用中英双语合规文本 [`docs/PRIVACY_POLICY.md`](./PRIVACY_POLICY.md)；
+    - 严格披露 SQLite 本地存储、健康步数只读使用目的与绝不上传声明、`POST_NOTIFICATIONS` 与 `USE_BIOMETRIC` 最小化权限、COPPA 儿童保护与 GDPR/CCPA 数据彻底粉碎擦除流程；
+    - 应用内集成常驻合规入口，实现响应式中英文即时切换的 `PrivacyPolicyDialog` 弹窗。
+  - **落地交付**：完成 `docs/PRIVACY_POLICY.md`、`PrivacyPolicyDialog` 组件与单元测试用例 `test/privacy_policy_test.dart` 全绿通过。
 
 ---
 

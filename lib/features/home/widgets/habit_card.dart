@@ -8,16 +8,18 @@ import '../../stats/habit_detail_screen.dart';
 class HabitCard extends StatefulWidget {
   final Habit habit;
   final bool isCompleted;
+  final bool isSkipped;
   final VoidCallback onToggle;
   final VoidCallback onLongPress;
 
   const HabitCard({
-    Key? key,
+    super.key,
     required this.habit,
     required this.isCompleted,
+    this.isSkipped = false,
     required this.onToggle,
     required this.onLongPress,
-  }) : super(key: key);
+  });
 
   @override
   State<HabitCard> createState() => _HabitCardState();
@@ -74,7 +76,7 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
   }
 
   void _incrementCounter() {
-    if (widget.isCompleted) return;
+    if (widget.isCompleted || widget.isSkipped) return;
     HapticFeedback.lightImpact();
     setState(() {
       _currentCounterValue += 250;
@@ -87,6 +89,16 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
 
   void _handleActionTap() {
     HapticFeedback.lightImpact();
+    if (widget.isSkipped) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❄️ 该习惯今日处于免责休假状态，连胜与动量已锁定保护。长按可重新调整。'),
+          duration: Duration(milliseconds: 2000),
+        ),
+      );
+      return;
+    }
+
     if (widget.habit.type == HabitType.timer) {
       Navigator.push(
         context,
@@ -112,9 +124,15 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color cardColor = widget.isCompleted
-        ? AppTheme.mintGreen.withOpacity(isDark ? 0.15 : 0.08)
-        : Theme.of(context).cardColor;
+    
+    Color cardColor;
+    if (widget.isSkipped) {
+      cardColor = isDark ? const Color(0xFF0369A1).withValues(alpha: 0.15) : const Color(0xFFE0F2FE);
+    } else if (widget.isCompleted) {
+      cardColor = AppTheme.mintGreen.withValues(alpha: isDark ? 0.15 : 0.08);
+    } else {
+      cardColor = Theme.of(context).cardColor;
+    }
 
     return AnimatedScale(
       scale: _isPressed ? 0.96 : 1.0,
@@ -136,12 +154,18 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
             color: cardColor,
             borderRadius: BorderRadius.circular(24.0),
             boxShadow: [
-              if (!isDark && !widget.isCompleted)
-                BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4)),
+              if (!isDark && !widget.isCompleted && !widget.isSkipped)
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                ),
             ],
-            border: widget.isCompleted
-                ? Border.all(color: AppTheme.mintGreen.withOpacity(0.3), width: 1.5)
-                : Border.all(color: Colors.transparent, width: 1.5),
+            border: widget.isSkipped
+                ? Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.4), width: 1.5)
+                : widget.isCompleted
+                    ? Border.all(color: AppTheme.mintGreen.withValues(alpha: 0.3), width: 1.5)
+                    : Border.all(color: Colors.transparent, width: 1.5),
           ),
           child: Stack(
             children: [
@@ -153,7 +177,7 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
                       duration: const Duration(milliseconds: 400),
                       curve: Curves.easeOutCubic,
                       width: MediaQuery.of(context).size.width * 0.9 * (_currentCounterValue / widget.habit.targetValue!),
-                      color: AppTheme.mintGreen.withOpacity(isDark ? 0.2 : 0.1),
+                      color: AppTheme.mintGreen.withValues(alpha: isDark ? 0.2 : 0.1),
                     ),
                   ),
                 ),
@@ -165,11 +189,18 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
-                        color: widget.isCompleted ? AppTheme.mintGreen : (isDark ? Colors.grey[800] : Colors.grey[100]),
+                        color: widget.isSkipped
+                            ? const Color(0xFF38BDF8)
+                            : widget.isCompleted
+                                ? AppTheme.mintGreen
+                                : (isDark ? Colors.grey[800] : Colors.grey[100]),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
-                        child: Text(widget.habit.iconEmoji, style: const TextStyle(fontSize: 24)),
+                        child: Text(
+                          widget.isSkipped ? '❄️' : widget.habit.iconEmoji,
+                          style: const TextStyle(fontSize: 24),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -177,23 +208,62 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AnimatedDefaultTextStyle(
-                            duration: const Duration(milliseconds: 200),
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: widget.isCompleted ? (isDark ? Colors.white54 : Colors.black45) : (isDark ? Colors.white : Colors.black87),
-                              decoration: widget.isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
-                            ),
-                            child: Text(widget.habit.name),
+                          Row(
+                            children: [
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 200),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: widget.isSkipped
+                                      ? (isDark ? Colors.lightBlueAccent : Colors.blueGrey)
+                                      : widget.isCompleted
+                                          ? (isDark ? Colors.white54 : Colors.black45)
+                                          : (isDark ? Colors.white : Colors.black87),
+                                  decoration: widget.isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
+                                ),
+                                child: Text(widget.habit.name),
+                              ),
+                              if (widget.isSkipped) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF38BDF8).withValues(alpha: 0.18),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Text(
+                                    '免责休假',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF0284C7),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                           if (widget.habit.type == HabitType.counter && widget.habit.targetValue != null) ...[
                             const SizedBox(height: 4),
-                            Text('$_currentCounterValue / ${widget.habit.targetValue} ${widget.habit.targetUnit}', style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600], fontWeight: FontWeight.bold)),
+                            Text(
+                              '$_currentCounterValue / ${widget.habit.targetValue} ${widget.habit.targetUnit}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                           if (widget.habit.type == HabitType.timer && widget.habit.timerSeconds != null) ...[
                             const SizedBox(height: 4),
-                            Text('${widget.habit.timerSeconds! ~/ 60} 分钟专注', style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600])),
+                            Text(
+                              '${widget.habit.timerSeconds! ~/ 60} 分钟专注',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              ),
+                            ),
                           ],
                         ],
                       ),
@@ -214,32 +284,62 @@ class _HabitCardState extends State<HabitCard> with SingleTickerProviderStateMix
   }
 
   Widget _buildActionArea(bool isDark) {
+    if (widget.isSkipped) {
+      return Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: const Color(0xFF38BDF8).withValues(alpha: 0.2),
+          shape: BoxShape.circle,
+        ),
+        child: const Center(
+          child: Icon(Icons.ac_unit_rounded, color: Color(0xFF0284C7), size: 20),
+        ),
+      );
+    }
     if (widget.habit.type == HabitType.quit) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(color: isDark ? Colors.red[900]?.withOpacity(0.3) : Colors.red[50], borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.red[900]?.withValues(alpha: 0.3) : Colors.red[50],
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: const Text('🔥 12天', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
       );
     }
     if (widget.habit.type == HabitType.timer) {
       return Container(
-        width: 44, height: 44,
-        decoration: BoxDecoration(color: widget.isCompleted ? Colors.transparent : AppTheme.mintGreen.withOpacity(0.1), shape: BoxShape.circle),
-        child: widget.isCompleted ? const Icon(Icons.check_circle_rounded, color: AppTheme.mintGreen, size: 32) : const Icon(Icons.play_arrow_rounded, color: AppTheme.darkMintGreen, size: 28),
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: widget.isCompleted ? Colors.transparent : AppTheme.mintGreen.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: widget.isCompleted
+            ? const Icon(Icons.check_circle_rounded, color: AppTheme.mintGreen, size: 32)
+            : const Icon(Icons.play_arrow_rounded, color: AppTheme.darkMintGreen, size: 28),
       );
     }
     if (widget.habit.type == HabitType.counter && !widget.isCompleted) {
       return Container(
-        width: 44, height: 44,
-        decoration: BoxDecoration(color: isDark ? Colors.grey[800] : Colors.grey[100], shape: BoxShape.circle),
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: isDark ? Colors.grey[800] : Colors.grey[100],
+          shape: BoxShape.circle,
+        ),
         child: Icon(Icons.add_rounded, color: isDark ? Colors.white70 : Colors.black87, size: 28),
       );
     }
     return Container(
-      width: 32, height: 32,
+      width: 32,
+      height: 32,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: widget.isCompleted ? AppTheme.mintGreen : Colors.grey.withOpacity(0.4), width: 2),
+        border: Border.all(
+          color: widget.isCompleted ? AppTheme.mintGreen : Colors.grey.withValues(alpha: 0.4),
+          width: 2,
+        ),
         color: widget.isCompleted ? AppTheme.mintGreen : Colors.transparent,
       ),
       child: ScaleTransition(

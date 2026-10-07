@@ -3,7 +3,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../../models/habit.dart';
 import '../../models/check_in.dart';
-import '../../models/user.dart';
 
 class SQLiteService {
   // 单例模式，确保全局只有一个数据库实例
@@ -19,6 +18,7 @@ class SQLiteService {
   }
 
   Future<Database> _initDB(String filePath) async {
+    // 自动防御性初始化 FFI，防止测试或多环境调用异常
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
@@ -36,7 +36,6 @@ class SQLiteService {
     const textType = 'TEXT NOT NULL';
     const textNull = 'TEXT';
     const boolType = 'INTEGER NOT NULL';
-    const integerType = 'INTEGER';
     const intNull = 'INTEGER';
 
     // 1. 创建 User 表

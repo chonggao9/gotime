@@ -8,13 +8,13 @@ enum HeatmapLevel {
   low,       // 1% - 49%
   medium,    // 50% - 99%
   high,      // 100% 满分
-  skipped    // 请假/冻结
+  skipped    // 请假/冻结 (冰蓝保护色)
 }
 
 class HeatmapCalendar extends StatefulWidget {
   final Map<DateTime, HeatmapLevel> data;
   
-  const HeatmapCalendar({Key? key, required this.data}) : super(key: key);
+  const HeatmapCalendar({super.key, required this.data});
 
   @override
   State<HeatmapCalendar> createState() => _HeatmapCalendarState();
@@ -46,19 +46,45 @@ class _HeatmapCalendarState extends State<HeatmapCalendar> {
       case HeatmapLevel.none:
         return isDark ? Colors.grey[850]! : Colors.grey[200]!;
       case HeatmapLevel.low:
-        return isDark ? AppTheme.darkMintGreen.withOpacity(0.4) : AppTheme.lightMintGreen;
+        return isDark ? AppTheme.darkMintGreen.withValues(alpha: 0.4) : AppTheme.lightMintGreen;
       case HeatmapLevel.medium:
         return AppTheme.mintGreen;
       case HeatmapLevel.high:
         return isDark ? const Color(0xFF00FFB2) : AppTheme.darkMintGreen; // 满分深色模式下给一点荧光绿
       case HeatmapLevel.skipped:
-        return isDark ? Colors.grey[700]! : Colors.grey[400]!;
+        // 冰蓝色表示休假/冻结保护色，传递安心舒适感
+        return isDark ? const Color(0xFF0284C7) : const Color(0xFF38BDF8);
     }
   }
 
   void _showDayInfo(DateTime date, HeatmapLevel level) {
     HapticFeedback.selectionClick();
-    // 这里可以用极简的 Tooltip 或 Snackbar 展示当天详情，暂时只做震动反馈
+    final String dateStr = '${date.month}月${date.day}日';
+    String tip = '未打卡';
+    if (level == HeatmapLevel.high) {
+      tip = '🌟 100% 完美达成';
+    } else if (level == HeatmapLevel.medium) {
+      tip = '🌱 已完成过半';
+    } else if (level == HeatmapLevel.low) {
+      tip = '💧 已部分打卡';
+    } else if (level == HeatmapLevel.skipped) {
+      tip = '❄️ 免责休假保护中 (连胜保留)';
+    }
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('$dateStr: $tip', style: const TextStyle(fontWeight: FontWeight.w600)),
+          ],
+        ),
+        duration: const Duration(milliseconds: 1500),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   @override
@@ -69,91 +95,51 @@ class _HeatmapCalendarState extends State<HeatmapCalendar> {
     final DateTime today = DateTime.now();
     final DateTime startDate = today.subtract(const Duration(days: 364));
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          if (!isDark)
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 标题与图例
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '年度成功图',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-              Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 热力图滚动主区域
+        SliverFadeEffect(
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLegendItem(HeatmapLevel.none, isDark),
-                  _buildLegendItem(HeatmapLevel.low, isDark),
-                  _buildLegendItem(HeatmapLevel.medium, isDark),
-                  _buildLegendItem(HeatmapLevel.high, isDark),
-                ],
-              )
-            ],
-          ),
-          const SizedBox(height: 24),
-          
-          // 热力图矩阵
-          SizedBox(
-            height: 140, // 7个格子的高度 + 间距
-            child: Row(
-              children: [
-                // 星期标签 Y轴
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildDayLabel('一'),
-                    _buildDayLabel('三'),
-                    _buildDayLabel('五'),
-                    _buildDayLabel('日'),
-                  ],
-                ),
-                const SizedBox(width: 8),
-                
-                // 滚动的格子矩阵 X轴
-                Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: 52, // 52 周
-                    itemBuilder: (context, weekIndex) {
+                  // 左侧星期标签
+                  Column(
+                    children: [
+                      _buildDayLabel('一'),
+                      _buildDayLabel(''),
+                      _buildDayLabel('三'),
+                      _buildDayLabel(''),
+                      _buildDayLabel('五'),
+                      _buildDayLabel(''),
+                      _buildDayLabel('日'),
+                    ],
+                  ),
+                  const SizedBox(width: 8),
+                  
+                  // 52 列数据网格
+                  Row(
+                    children: List.generate(53, (colIndex) {
                       return Column(
-                        children: List.generate(7, (dayIndex) {
-                          // 计算当前格子的具体日期
-                          final int dayOffset = (weekIndex * 7) + dayIndex;
+                        children: List.generate(7, (rowIndex) {
+                          // 计算对应单元格的精确日期
+                          final int dayOffset = (colIndex * 7) + rowIndex;
                           final DateTime cellDate = startDate.add(Duration(days: dayOffset));
                           
-                          // 模拟超出今天的数据为空白
+                          // 如果超出今天则绘制透明占位
                           if (cellDate.isAfter(today)) {
-                            return const SizedBox(width: 14, height: 14, child: Margin(margin: EdgeInsets.all(2)));
+                            return const SizedBox(width: 14, height: 14);
                           }
 
-                          // 从传入的 map 中读取当天状态，没有则为 none
-                          // 实际开发中需要剔除时分秒，只比较 yyyy-mm-dd
-                          final HeatmapLevel level = widget.data.entries.firstWhere(
-                            (entry) => entry.key.year == cellDate.year && 
-                                       entry.key.month == cellDate.month && 
-                                       entry.key.day == cellDate.day,
-                            orElse: () => MapEntry(cellDate, HeatmapLevel.none),
-                          ).value;
+                          // 匹配外部传入的完成度等级
+                          final DateTime dateKey = DateTime(cellDate.year, cellDate.month, cellDate.day);
+                          final HeatmapLevel level = widget.data[dateKey] ?? HeatmapLevel.none;
 
                           return GestureDetector(
                             onTap: () => _showDayInfo(cellDate, level),
@@ -163,20 +149,44 @@ class _HeatmapCalendarState extends State<HeatmapCalendar> {
                               margin: const EdgeInsets.all(2),
                               decoration: BoxDecoration(
                                 color: _getColorForLevel(level, isDark),
-                                borderRadius: BorderRadius.circular(4), // GitHub是直角，我们这里做微圆角更精致
+                                borderRadius: BorderRadius.circular(3),
                               ),
                             ),
                           );
                         }),
                       );
-                    },
+                    }),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // 底部图例指示区
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text('少', style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+              const SizedBox(width: 4),
+              _buildLegendItem(HeatmapLevel.none, isDark),
+              _buildLegendItem(HeatmapLevel.low, isDark),
+              _buildLegendItem(HeatmapLevel.medium, isDark),
+              _buildLegendItem(HeatmapLevel.high, isDark),
+              const SizedBox(width: 4),
+              Text('多', style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+              const SizedBox(width: 16),
+              _buildLegendItem(HeatmapLevel.skipped, isDark),
+              const SizedBox(width: 4),
+              Text('❄️休假', style: TextStyle(fontSize: 10, color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7))),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -204,10 +214,13 @@ class _HeatmapCalendarState extends State<HeatmapCalendar> {
     );
   }
 }
-// 用于处理空白占位的辅助类
-class Margin extends StatelessWidget {
-  final EdgeInsets margin;
-  const Margin({Key? key, required this.margin}) : super(key: key);
+
+class SliverFadeEffect extends StatelessWidget {
+  final Widget child;
+  const SliverFadeEffect({super.key, required this.child});
+
   @override
-  Widget build(BuildContext context) => Padding(padding: margin, child: const SizedBox.expand());
+  Widget build(BuildContext context) {
+    return child;
+  }
 }

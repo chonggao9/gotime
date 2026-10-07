@@ -15,23 +15,23 @@
 ## 阶段一：核心抗焦虑体验与心理激励 (Phase 1: Quick Wins)
 聚焦于彻底解决“断签即归零的焦虑感”与“完成习惯时的即时正向反馈”。
 
-- [ ] **F1.1 指数平滑习惯强度分数 (Habit Strength Score)** `[P0]`
+- [x] **F1.1 指数平滑习惯强度分数 (Habit Strength Score)** `[P0]`
   - **灵感**：*Loop Habit Tracker (iSoron/uhabits)*
   - **描述**：引入动态习惯强度百分比（0%~100%），采用指数平滑公式：$S_t = S_{t-1} \cdot \alpha + (1 - \alpha) \cdot V_t$。
   - **价值**：断签 1 天仅衰减小幅百分比（如 85% $\rightarrow$ 80%），次日打卡迅速回升，坚决不直接归零。
-  - **涉及模块**：`lib/models/habit.dart`, `lib/features/stats/`, `lib/core/database/`
+  - **落地交付**：已实现 `HabitStrengthService` 及相关单元测试，集成在 `HabitDetailScreen` 及 `StatsScreen`。
 
-- [ ] **F1.2 休假与生病免责冻结模式 (Vacation / Sick Freeze)** `[P0]`
+- [x] **F1.2 休假与生病免责冻结模式 (Vacation / Sick Freeze)** `[P0]`
   - **灵感**：*InlitX/streak (Vacation Mode)*
   - **描述**：支持在首页或设置中一键开启“休假/生病状态”；休假期间所有习惯自动免除，热力图标记为冰蓝色 ❄️（已休假），连胜不断。
   - **价值**：允许合法喘息，生病与出差不再有心理罪恶感。
-  - **涉及模块**：`lib/features/home/`, `lib/models/check_in.dart`, `lib/features/stats/widgets/heatmap_calendar.dart`
+  - **落地交付**：已实现 `FreezeModeService`，在首页提供快速休假状态开关与渐变横幅，在设置页提供开关，长按卡片可单项免责跳过，热力图渲染专属冰蓝图例。
 
-- [ ] **F1.3 今日全勤庆祝微动效与触感强化 (Celebration Confetti & Haptics)** `[P0]`
+- [x] **F1.3 今日全勤庆祝微动效与触感强化 (Celebration Confetti & Haptics)** `[P0]`
   - **灵感**：*PHom798/Flutter-Habit-Tracker*
   - **描述**：当日所有激活习惯均打卡完成时，触发全屏优雅礼花动效（Confetti）与震动回馈。
   - **价值**：给完成一整天目标的自律行为最强烈的多巴胺正向奖励。
-  - **涉及模块**：`lib/features/home/home_screen.dart`
+  - **落地交付**：已实现纯 Flutter CustomPainter 物理粒子弹窗 `ConfettiCelebrationDialog`，当日所有习惯完成时自动触发动效与重触感反馈。
 
 ---
 

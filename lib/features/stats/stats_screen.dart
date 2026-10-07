@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
 import 'widgets/heatmap_calendar.dart';
 
 class StatsScreen extends StatefulWidget {
-  const StatsScreen({Key? key}) : super(key: key);
+  const StatsScreen({super.key});
 
   @override
   State<StatsScreen> createState() => _StatsScreenState();
@@ -18,17 +17,17 @@ class _StatsScreenState extends State<StatsScreen> {
     
     for (int i = 0; i < 90; i++) {
       final date = today.subtract(Duration(days: i));
-      // 随机生成一些状态，模拟真实打卡情况
+      final dateKey = DateTime(date.year, date.month, date.day);
       if (i % 7 == 0) {
-        data[date] = HeatmapLevel.skipped; // 假装每周日请假
+        data[dateKey] = HeatmapLevel.skipped; // 规律休假保护日
       } else if (i % 3 == 0) {
-        data[date] = HeatmapLevel.high; // 完美的一天
+        data[dateKey] = HeatmapLevel.high; // 完美的一天
       } else if (i % 2 == 0) {
-        data[date] = HeatmapLevel.medium; // 完成了大部分
+        data[dateKey] = HeatmapLevel.medium; // 完成大部分
       } else if (i % 5 == 0) {
-        data[date] = HeatmapLevel.low; // 只完成了一点点
+        data[dateKey] = HeatmapLevel.low; // 部分完成
       } else {
-        data[date] = HeatmapLevel.none; // 彻底摆烂
+        data[dateKey] = HeatmapLevel.none; // 未打卡
       }
     }
     return data;
@@ -47,10 +46,10 @@ class _StatsScreenState extends State<StatsScreen> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 顶部大字报指标区
+          // 顶部指标大字报卡片区
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(20.0),
               child: Row(
                 children: [
                   _buildStatCard(
@@ -60,7 +59,16 @@ class _StatsScreenState extends State<StatsScreen> {
                     icon: '🔥',
                     isDark: isDark,
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
+                  _buildStatCard(
+                    title: '习惯稳固度',
+                    value: '88',
+                    unit: '%',
+                    icon: '💎',
+                    highlightColor: AppTheme.mintGreen,
+                    isDark: isDark,
+                  ),
+                  const SizedBox(width: 12),
                   _buildStatCard(
                     title: '本月达成',
                     value: '86',
@@ -73,10 +81,34 @@ class _StatsScreenState extends State<StatsScreen> {
             ),
           ),
           
+          // 年度热力图区域标题与说明
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '年度坚持热力图',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    '点击格子看详情',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // 年度热力图区域
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: HeatmapCalendar(data: _generateMockData()),
             ),
           ),
@@ -118,19 +150,20 @@ class _StatsScreenState extends State<StatsScreen> {
     required String value,
     required String unit,
     required String icon,
+    Color? highlightColor,
     required bool isDark,
   }) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             if (!isDark)
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 20,
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 16,
                 offset: const Offset(0, 4),
               )
           ],
@@ -140,19 +173,23 @@ class _StatsScreenState extends State<StatsScreen> {
           children: [
             Row(
               children: [
-                Text(icon, style: const TextStyle(fontSize: 20)),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+                Text(icon, style: const TextStyle(fontSize: 16)),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
@@ -160,16 +197,16 @@ class _StatsScreenState extends State<StatsScreen> {
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 36,
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: highlightColor ?? (isDark ? Colors.white : Colors.black87),
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 2),
                 Text(
                   unit,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.grey[500] : Colors.grey[400],
                   ),
@@ -183,12 +220,12 @@ class _StatsScreenState extends State<StatsScreen> {
   }
 
   Widget _buildLogItem(bool isDark, int index) {
-    final emojis = ['😫', '😎', '🎉', '🤔', '💪'];
+    final emojis = ['😫', '😎', '🎉', '❄️', '💪'];
     final texts = [
       '今天喝得肚子胀，但是坚持下来了！',
       '读完了第三章，感觉灵魂得到了升华。',
       '突破了 5 公里！配速 5分30秒。',
-      '番茄钟中途被打断了一次，明天需要找个更安静的地方。',
+      '连续出差，开启免责休假冻结保护中 ❄️',
       '虽然有点累，但动量分数保住了！'
     ];
     
@@ -197,69 +234,54 @@ class _StatsScreenState extends State<StatsScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 左侧时间线轴
           Column(
             children: [
               Container(
-                width: 12,
-                height: 12,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.mintGreen,
+                  color: isDark ? Colors.grey[850] : Colors.grey[100],
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
-                    width: 2,
-                  ),
                 ),
+                child: Center(child: Text(emojis[index - 1], style: const TextStyle(fontSize: 18))),
               ),
-              if (index < 5) // 只要不是最后一个，就画一条线
+              if (index < 5)
                 Container(
                   width: 2,
-                  height: 60,
-                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                  height: 48,
+                  color: isDark ? Colors.grey[850] : Colors.grey[200],
                 ),
             ],
           ),
           const SizedBox(width: 16),
-          // 右侧日志内容
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '10月${10 - index}日',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.grey[500] : Colors.grey[400],
-                  ),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? Colors.grey[850]! : Colors.grey[100]!,
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-                    borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '10月${7 - index}日',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.bold),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(emojis[index - 1], style: const TextStyle(fontSize: 24)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          texts[index - 1],
-                          style: TextStyle(
-                            fontSize: 15,
-                            height: 1.5,
-                            color: isDark ? Colors.white70 : Colors.black87,
-                          ),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 6),
+                  Text(
+                    texts[index - 1],
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black87,
+                      height: 1.4,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

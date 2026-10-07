@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/services/freeze_mode_service.dart';
 
 class SocialScreen extends StatefulWidget {
-  const SocialScreen({Key? key}) : super(key: key);
+  const SocialScreen({super.key});
 
   @override
   State<SocialScreen> createState() => _SocialScreenState();
@@ -61,32 +62,35 @@ class _SocialScreenState extends State<SocialScreen> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   if (!isDark)
-                    BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4))
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
                 ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('🏆', style: TextStyle(fontSize: 24)),
-                      const SizedBox(width: 12),
+                      const Text(
+                        '🏆 本周全勤对决',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                       Text(
-                        '本周全勤对决',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black87,
-                        ),
+                        '剩余 3 天',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   
-                  // 我方的进度条
+                  // 我的进度
                   _buildComparisonTrack(
-                    name: '我',
-                    avatarUrl: 'https://i.pravatar.cc/150?img=11', // 假头像
+                    name: '我 (Zhenhua)',
+                    avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80',
                     progress: 0.8,
                     days: 4,
                     color: AppTheme.mintGreen,
@@ -94,13 +98,13 @@ class _SocialScreenState extends State<SocialScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // 对方的进度条
+                  // 好友进度
                   _buildComparisonTrack(
-                    name: 'Alex',
-                    avatarUrl: 'https://i.pravatar.cc/150?img=12',
+                    name: '搭子 (Alex)',
+                    avatarUrl: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&q=80',
                     progress: 0.4,
                     days: 2,
-                    color: Colors.grey,
+                    color: Colors.blueAccent,
                     isDark: isDark,
                   ),
                 ],
@@ -126,11 +130,32 @@ class _SocialScreenState extends State<SocialScreen> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   if (!isDark)
-                    BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4))
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    )
                 ],
               ),
               child: Column(
                 children: [
+                  // 休假/生病免责冻结开关
+                  ValueListenableBuilder<bool>(
+                    valueListenable: FreezeModeService.instance.isFreezeModeActive,
+                    builder: (context, isFrozen, child) {
+                      return _buildSettingSwitch(
+                        icon: Icons.ac_unit_rounded,
+                        title: '休假/生病免责模式',
+                        subtitle: '开启期间不扣减强度分，连胜不中断',
+                        value: isFrozen,
+                        onChanged: (val) {
+                          FreezeModeService.instance.setFreezeMode(val);
+                        },
+                        isDark: isDark,
+                      );
+                    },
+                  ),
+                  _buildDivider(isDark),
                   _buildSettingSwitch(
                     icon: Icons.cloud_sync_rounded,
                     title: 'Firebase 云端备份',
@@ -166,7 +191,6 @@ class _SocialScreenState extends State<SocialScreen> {
               child: TextButton.icon(
                 onPressed: () {
                   HapticFeedback.heavyImpact();
-                  // 触发注销警告弹窗
                 },
                 icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
                 label: const Text('注销账号并粉碎所有数据', style: TextStyle(color: Colors.redAccent)),
@@ -221,7 +245,7 @@ class _SocialScreenState extends State<SocialScreen> {
                     duration: const Duration(milliseconds: 800),
                     curve: Curves.easeOutCubic,
                     height: 12,
-                    width: MediaQuery.of(context).size.width * 0.6 * progress, // 估算宽度
+                    width: MediaQuery.of(context).size.width * 0.6 * progress,
                     decoration: BoxDecoration(
                       color: color,
                       borderRadius: BorderRadius.circular(6),
@@ -273,7 +297,14 @@ class _SocialScreenState extends State<SocialScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: isDark ? Colors.white : Colors.black87)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
               ],
@@ -281,7 +312,7 @@ class _SocialScreenState extends State<SocialScreen> {
           ),
           Switch.adaptive(
             value: value,
-            activeColor: AppTheme.mintGreen,
+            activeTrackColor: AppTheme.mintGreen,
             onChanged: (val) {
               HapticFeedback.lightImpact();
               onChanged(val);
@@ -312,7 +343,14 @@ class _SocialScreenState extends State<SocialScreen> {
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: isDark ? Colors.white : Colors.black87)),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
           ),
           trailing,
         ],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../models/habit.dart';
 
 class HabitActionSheet extends StatelessWidget {
@@ -10,12 +9,12 @@ class HabitActionSheet extends StatelessWidget {
   final VoidCallback onDelete;
 
   const HabitActionSheet({
-    Key? key,
+    super.key,
     required this.habit,
     required this.onWriteLog,
     required this.onSkipToday,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -19,6 +19,8 @@ import 'widgets/reminder_settings_dialog.dart';
 import 'widgets/watch_preview_dialog.dart';
 import 'widgets/webdav_dialog.dart';
 import 'widgets/widget_preview_dialog.dart';
+import '../home/widgets/kindness_mailbox_dialog.dart';
+import '../timer/widgets/mindful_shield_dialog.dart';
 
 class SocialScreen extends StatefulWidget {
   const SocialScreen({super.key});
@@ -449,6 +451,22 @@ class _SocialScreenState extends State<SocialScreen> {
                         ],
                       );
                     },
+                  ),
+                  _buildDivider(isDark),
+                  _buildSettingAction(
+                    icon: Icons.shield_rounded,
+                    title: '正念自律屏障与防沉迷盾牌 (Mindful Shield)',
+                    subtitle: '在分心冲动与反应之间插入冷静呼吸，重塑大脑前额叶',
+                    onTap: () => MindfulShieldDialog.show(context),
+                    isDark: isDark,
+                  ),
+                  _buildDivider(isDark),
+                  _buildSettingAction(
+                    icon: Icons.mail_outline_rounded,
+                    title: '自律同路人善意信箱 (Kindness Mailbox)',
+                    subtitle: '抽取温情鼓励便签，或为他人投递抚平焦虑的善意',
+                    onTap: () => KindnessMailboxDialog.show(context),
+                    isDark: isDark,
                   ),
                   _buildDivider(isDark),
                   _buildSettingAction(

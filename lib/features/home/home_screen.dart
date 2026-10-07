@@ -16,6 +16,7 @@ import 'widgets/archived_habits_sheet.dart';
 import 'widgets/routine_play_sheet.dart';
 import 'widgets/two_minute_friction_dialog.dart';
 import 'widgets/quick_natural_log_dialog.dart';
+import 'widgets/kindness_mailbox_dialog.dart';
 import '../stats/widgets/share_poster_dialog.dart';
 import 'package:uuid/uuid.dart';
 
@@ -607,6 +608,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             actions: [
+              // 善意共鸣信箱入口 (F13.1)
+              IconButton(
+                icon: const Icon(Icons.mail_outline_rounded, size: 22),
+                tooltip: '善意共鸣信箱 💌',
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  KindnessMailboxDialog.show(context);
+                },
+              ),
               // 分享海报生成入口
               IconButton(
                 icon: const Icon(Icons.ios_share_rounded, size: 22),

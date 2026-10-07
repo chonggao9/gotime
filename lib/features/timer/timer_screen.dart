@@ -8,6 +8,7 @@ import '../../core/services/ambient_sound_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/check_in.dart';
 import '../../models/habit.dart';
+import 'widgets/mindful_shield_dialog.dart';
 import 'widgets/sound_mixer_sheet.dart';
 import 'widgets/sound_selector_sheet.dart';
 import 'widgets/sound_wave_visualizer.dart';
@@ -246,10 +247,17 @@ class _TimerScreenState extends State<TimerScreen> with SingleTickerProviderStat
                     icon: const Icon(Icons.close_rounded, color: Colors.white54, size: 28),
                   ),
 
-                  // 右侧音频控制区：多轨混音台 + 单轨白噪音胶囊
+                  // 右侧音频与屏障控制区：防沉迷盾牌 + 多轨混音台 + 单轨白噪音胶囊
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // 正念自律屏障与防沉迷盾牌 (F13.2)
+                      IconButton(
+                        tooltip: '正念自律屏障 🛡️',
+                        icon: const Icon(Icons.shield_outlined, color: Colors.white70, size: 22),
+                        onPressed: () => MindfulShieldDialog.show(context),
+                      ),
+                      const SizedBox(width: 2),
                       // 48kHz 多轨混音调音台入口
                       IconButton(
                         tooltip: '48kHz 多轨混音台',

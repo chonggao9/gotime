@@ -6,8 +6,13 @@ import 'package:uuid/uuid.dart';
 
 class CreateHabitSheet extends StatefulWidget {
   final Function(Habit) onSave;
+  final List<Habit> existingHabits;
 
-  const CreateHabitSheet({super.key, required this.onSave});
+  const CreateHabitSheet({
+    super.key,
+    required this.onSave,
+    this.existingHabits = const [],
+  });
 
   @override
   State<CreateHabitSheet> createState() => _CreateHabitSheetState();
@@ -22,6 +27,10 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
   HabitType _selectedType = HabitType.boolean;
   String _selectedTimeOfDay = 'all'; // all, morning, afternoon, evening
   
+  // 习惯堆叠字段
+  String? _selectedStackedHabitId;
+  String? _selectedStackedHabitName;
+
   // 附加设定
   int _targetValue = 2000;
   String _targetUnit = 'ml';
@@ -30,10 +39,80 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
   final List<String> _emojis = ['🎯', '💧', '📚', '🏃‍♂️', '🧘‍♀️', '🥗', '💻', '💸', '🛌', '🚭'];
   final List<String> _colors = ['#34D399', '#60A5FA', '#F472B6', '#FBBF24', '#A78BFA', '#F87171'];
 
+  // 推荐习惯包预设
+  final List<Map<String, dynamic>> _presets = [
+    {
+      'title': '晨间温水',
+      'emoji': '💧',
+      'color': '#34D399',
+      'type': HabitType.counter,
+      'targetValue': 2000,
+      'targetUnit': 'ml',
+      'timeOfDay': 'morning',
+    },
+    {
+      'title': '深度工作',
+      'emoji': '🍅',
+      'color': '#F87171',
+      'type': HabitType.timer,
+      'timerMinutes': 25,
+      'timeOfDay': 'afternoon',
+    },
+    {
+      'title': '睡前慢读',
+      'emoji': '📚',
+      'color': '#60A5FA',
+      'type': HabitType.boolean,
+      'timeOfDay': 'evening',
+    },
+    {
+      'title': '正念冥想',
+      'emoji': '🧘‍♀️',
+      'color': '#A78BFA',
+      'type': HabitType.timer,
+      'timerMinutes': 10,
+      'timeOfDay': 'evening',
+    },
+    {
+      'title': '清晨慢跑',
+      'emoji': '🏃‍♂️',
+      'color': '#FBBF24',
+      'type': HabitType.counter,
+      'targetValue': 5,
+      'targetUnit': 'km',
+      'timeOfDay': 'morning',
+    },
+    {
+      'title': '戒烟节制',
+      'emoji': '🚭',
+      'color': '#F87171',
+      'type': HabitType.quit,
+      'timeOfDay': 'all',
+    },
+  ];
+
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  void _applyPreset(Map<String, dynamic> preset) {
+    HapticFeedback.lightImpact();
+    setState(() {
+      _nameController.text = preset['title'] as String;
+      _selectedEmoji = preset['emoji'] as String;
+      _selectedColor = preset['color'] as String;
+      _selectedType = preset['type'] as HabitType;
+      _selectedTimeOfDay = preset['timeOfDay'] as String;
+      if (preset.containsKey('targetValue')) {
+        _targetValue = preset['targetValue'] as int;
+        _targetUnit = preset['targetUnit'] as String;
+      }
+      if (preset.containsKey('timerMinutes')) {
+        _timerMinutes = preset['timerMinutes'] as int;
+      }
+    });
   }
 
   void _submit() {
@@ -58,6 +137,8 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
       timerSeconds: _selectedType == HabitType.timer ? _timerMinutes * 60 : null,
       frequency: {'type': 'daily'},
       timeOfDay: _selectedTimeOfDay,
+      stackedAfterHabitId: _selectedStackedHabitId,
+      stackedAfterHabitName: _selectedStackedHabitName,
       updatedAt: DateTime.now(),
     );
     
@@ -96,7 +177,7 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             
             // 标题
             Text(
@@ -107,7 +188,11 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
                 color: isDark ? Colors.white : Colors.black87,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+
+            // 推荐习惯包快捷导入 (F2.4)
+            _buildPresetBar(isDark),
+            const SizedBox(height: 20),
 
             // 图标与名称输入
             Row(
@@ -117,7 +202,6 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
                 Expanded(
                   child: TextField(
                     controller: _nameController,
-                    autofocus: true,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -127,7 +211,7 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
                       hintText: '如：晨间喝温水、阅读15分钟',
                       hintStyle: TextStyle(
                         color: isDark ? Colors.grey[600] : Colors.grey[400],
-                        fontSize: 16,
+                        fontSize: 15,
                       ),
                       filled: true,
                       fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[100],
@@ -152,11 +236,14 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
             // 动态数值设置
             _buildDynamicSettings(isDark),
 
-            // 时段分类选择
+            // 时段分类选择 (F2.2)
             Text('执行时段', style: _labelStyle(isDark)),
             const SizedBox(height: 12),
             _buildTimeOfDaySelector(isDark),
             const SizedBox(height: 24),
+
+            // 《原子习惯》习惯堆叠触发器 (F2.3)
+            _buildHabitStackingSection(isDark),
 
             // 主题色选择
             Text('标记颜色', style: _labelStyle(isDark)),
@@ -195,6 +282,112 @@ class _CreateHabitSheetState extends State<CreateHabitSheet> {
       fontSize: 14,
       fontWeight: FontWeight.bold,
       color: isDark ? Colors.grey[400] : Colors.grey[600],
+    );
+  }
+
+  Widget _buildPresetBar(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text('✨ ', style: TextStyle(fontSize: 14)),
+            Text(
+              '一键预设模板包',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: _presets.map((preset) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: ActionChip(
+                  avatar: Text(preset['emoji'] as String, style: const TextStyle(fontSize: 14)),
+                  label: Text(preset['title'] as String),
+                  backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[100],
+                  side: BorderSide(color: isDark ? Colors.grey[800]! : Colors.grey[200]!),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  labelStyle: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                  onPressed: () => _applyPreset(preset),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHabitStackingSection(bool isDark) {
+    if (widget.existingHabits.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('⛓️ 习惯堆叠锚点 (原子习惯法则)', style: _labelStyle(isDark)),
+            if (_selectedStackedHabitId != null)
+              GestureDetector(
+                onTap: () => setState(() {
+                  _selectedStackedHabitId = null;
+                  _selectedStackedHabitName = null;
+                }),
+                child: const Text('清除绑定', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+              ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          '在完成选中的前置习惯后，系统将自动提示顺便完成此习惯。',
+          style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[500] : Colors.grey[600]),
+        ),
+        const SizedBox(height: 10),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: widget.existingHabits.map((h) {
+              final isChosen = _selectedStackedHabitId == h.id;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: FilterChip(
+                  avatar: Text(h.iconEmoji),
+                  label: Text('在【${h.name}】之后'),
+                  selected: isChosen,
+                  selectedColor: AppTheme.mintGreen.withValues(alpha: 0.2),
+                  onSelected: (val) {
+                    HapticFeedback.selectionClick();
+                    setState(() {
+                      if (val) {
+                        _selectedStackedHabitId = h.id;
+                        _selectedStackedHabitName = h.name;
+                      } else {
+                        _selectedStackedHabitId = null;
+                        _selectedStackedHabitName = null;
+                      }
+                    });
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 

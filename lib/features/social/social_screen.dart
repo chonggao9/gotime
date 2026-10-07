@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/freeze_mode_service.dart';
+import 'widgets/backup_dialog.dart';
 
 class SocialScreen extends StatefulWidget {
   const SocialScreen({super.key});
@@ -180,6 +181,22 @@ class _SocialScreenState extends State<SocialScreen> {
                     trailing: const Text('跟随系统', style: TextStyle(color: Colors.grey)),
                     isDark: isDark,
                   ),
+                  _buildDivider(isDark),
+                  _buildSettingAction(
+                    icon: Icons.save_alt_rounded,
+                    title: '本地全量数据备份 (JSON)',
+                    subtitle: '本地优先，随时导出与迁移',
+                    onTap: () => BackupDialog.show(context, isExportCsv: false),
+                    isDark: isDark,
+                  ),
+                  _buildDivider(isDark),
+                  _buildSettingAction(
+                    icon: Icons.table_chart_rounded,
+                    title: '导出打卡数据报表 (CSV)',
+                    subtitle: '可在 Excel / Notion 中离线分析',
+                    onTap: () => BackupDialog.show(context, isExportCsv: true),
+                    isDark: isDark,
+                  ),
                 ],
               ),
             ),
@@ -354,6 +371,55 @@ class _SocialScreenState extends State<SocialScreen> {
           ),
           trailing,
         ],
+      ),
+    );
+  }
+
+  Widget _buildSettingAction({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[800] : Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: isDark ? Colors.white70 : Colors.black87),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: Colors.grey[500], size: 20),
+          ],
+        ),
       ),
     );
   }

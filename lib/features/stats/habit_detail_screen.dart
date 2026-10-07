@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../../core/database/sqlite_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../models/habit.dart';
 import '../../../models/check_in.dart';
 import '../../../core/services/habit_strength_service.dart';
+import '../home/widgets/log_habit_sheet.dart';
 import 'widgets/share_poster_dialog.dart';
+import 'package:uuid/uuid.dart';
 
 class HabitDetailScreen extends StatefulWidget {
   final Habit habit;
@@ -20,7 +24,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   
   int _currentStreak = 12;
   int _totalDays = 45;
-  double _habitStrength = 0.86; // 默认 86%
+  double _habitStrength = 0.86;
 
   @override
   void initState() {
@@ -29,46 +33,37 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   }
 
   Future<void> _loadHistory() async {
-    await Future.delayed(const Duration(milliseconds: 250));
-    
-    final mockCheckIns = [
-      CheckIn(
-        id: '1',
-        habitId: widget.habit.id,
-        date: DateTime.now().toIso8601String().split('T')[0],
-        status: CheckInStatus.completed,
-        logText: '今天状态很棒，轻松完成！',
-        mood: 5,
-        createdAt: DateTime.now(),
-      ),
-      CheckIn(
-        id: '2',
-        habitId: widget.habit.id,
-        date: DateTime.now().subtract(const Duration(days: 1)).toIso8601String().split('T')[0],
-        status: CheckInStatus.completed,
-        logText: '晚上加完班顺手打卡，不费力。',
-        mood: 4,
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-      CheckIn(
-        id: '3',
-        habitId: widget.habit.id,
-        date: DateTime.now().subtract(const Duration(days: 2)).toIso8601String().split('T')[0],
-        status: CheckInStatus.skipped,
-        logText: '出差中，开启了免责休假冻结 ❄️',
-        mood: 3,
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      ),
-    ];
+    List<CheckIn> checkIns = [];
+    if (!kIsWeb) {
+      try {
+        checkIns = await SQLiteService.instance.getCheckInsForHabit(widget.habit.id);
+      } catch (e) {
+        debugPrint('Failed to load checkins: $e');
+      }
+    }
 
-    final calculatedStrength = HabitStrengthService.calculateStrength(mockCheckIns);
-    final calculatedStreak = HabitStrengthService.calculateStreak(mockCheckIns);
+    if (checkIns.isEmpty) {
+      checkIns = [
+        CheckIn(
+          id: '1',
+          habitId: widget.habit.id,
+          date: DateTime.now().toIso8601String().split('T')[0],
+          status: CheckInStatus.completed,
+          logText: '保持节奏，日拱一卒，功不唐捐！🌿',
+          mood: 5,
+          createdAt: DateTime.now(),
+        ),
+      ];
+    }
+
+    final calculatedStrength = HabitStrengthService.calculateStrength(checkIns);
+    final calculatedStreak = HabitStrengthService.calculateStreak(checkIns);
 
     setState(() {
-      _historyLogs = mockCheckIns;
-      _currentStreak = calculatedStreak > 0 ? calculatedStreak : 12;
-      _habitStrength = calculatedStrength > 0 ? calculatedStrength : 0.86;
-      _totalDays = mockCheckIns.length + 42;
+      _historyLogs = checkIns;
+      _currentStreak = calculatedStreak > 0 ? calculatedStreak : 1;
+      _habitStrength = calculatedStrength > 0 ? calculatedStrength : 0.85;
+      _totalDays = checkIns.length;
       _isLoading = false;
     });
   }
@@ -134,13 +129,53 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                 const SizedBox(height: 28),
 
                 // 日志流 (Timeline)
-                Text(
-                  '习惯日志与感悟',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '习惯日志与感悟',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (ctx) => LogHabitSheet(
+                            habitName: widget.habit.name,
+                            habitThemeColor: widget.habit.themeColor,
+                            onSave: (logText, mood) async {
+                              final todayStr = DateTime.now().toIso8601String().split('T')[0];
+                              final checkIn = CheckIn(
+                                id: const Uuid().v4(),
+                                habitId: widget.habit.id,
+                                date: todayStr,
+                                status: CheckInStatus.completed,
+                                logText: logText.isNotEmpty ? logText : null,
+                                mood: mood,
+                                createdAt: DateTime.now(),
+                              );
+                              if (!kIsWeb) {
+                                await SQLiteService.instance.insertCheckIn(checkIn);
+                              }
+                              _loadHistory();
+                            },
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.add_comment_rounded, size: 16),
+                      label: const Text('写心得'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.mintGreen,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 _buildLogsTimeline(isDark, themeColor),

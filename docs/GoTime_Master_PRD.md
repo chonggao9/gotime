@@ -188,7 +188,11 @@
 | `frequency` | Object | `{ type: "daily"/"weekly", days: [1,3,5] }` |
 | `reminders` | Array | 提醒时间列表，如 `["08:00", "21:00"]` |
 | `is_shared` | Boolean | 是否共享给好友 |
-| `is_archived` | Boolean | 软删除标记 |
+| `is_archived` | Boolean | 软删除 / 归档休眠池标记 |
+| `time_of_day` | String | 时段分类 (`all`, `morning`, `afternoon`, `evening`) |
+| `tags` | Array | 自定义标签列表 |
+| `stacked_after_habit_id` | String? | 《原子习惯》习惯堆叠前置锚点习惯 ID |
+| `stacked_after_habit_name` | String? | 习惯堆叠前置习惯名称 |
 | `updated_at` | Timestamp | 最后修改时间 |
 
 ### 4.3 打卡记录对象 (CheckIn)
@@ -217,4 +221,8 @@
 
 ## 六、 持续演进路线与待办清单
 详细演进与开发排期请参见：[GoTime 产品功能待办清单与演进路线图](./FEATURE_TODO_ROADMAP.md)。
-阶段一（Phase 1: 习惯强度模型、休假免责模式、全勤庆祝动效）已全部交付闭环并完成自动化测试验证。
+- **阶段一 (Phase 1)**：习惯强度模型、休假免责模式、全勤庆祝动效已全部交付闭环。
+- **阶段二 (Phase 2)**：杂志级分享海报、时段与标签过滤、原子习惯堆叠触发器、精选预设模板库已全部交付闭环。
+- **阶段三 (Phase 3)**：本地优先 JSON/CSV 导入导出、专注计时器白噪音声境与颂钵禅鸣、打卡心得真实持久化与感悟时间轴、习惯归档与休眠池已全部交付闭环。
+- **阶段四 (Phase 4)**：桌面小组件与端到端加密云端同步正在规划中。
+

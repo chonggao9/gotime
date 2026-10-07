@@ -6,6 +6,7 @@ class HabitActionSheet extends StatelessWidget {
   final Habit habit;
   final VoidCallback onWriteLog;
   final VoidCallback onSkipToday;
+  final VoidCallback onArchive;
   final VoidCallback onDelete;
 
   const HabitActionSheet({
@@ -13,6 +14,7 @@ class HabitActionSheet extends StatelessWidget {
     required this.habit,
     required this.onWriteLog,
     required this.onSkipToday,
+    required this.onArchive,
     required this.onDelete,
   });
 
@@ -66,24 +68,34 @@ class HabitActionSheet extends StatelessWidget {
           _buildActionItem(
             context,
             icon: Icons.edit_note_rounded,
-            label: '记录习惯日志',
+            label: '记录打卡心得与心情',
             color: isDark ? Colors.white : Colors.black87,
             onTap: onWriteLog,
           ),
           _buildActionItem(
             context,
             icon: Icons.ac_unit_rounded,
-            label: '今日请假 (冻结跳过)',
-            color: Colors.blueAccent,
+            label: '今日请假 (免责冻结)',
+            color: const Color(0xFF0284C7),
             onTap: onSkipToday,
           ),
-          const SizedBox(height: 16),
+          _buildActionItem(
+            context,
+            icon: Icons.archive_outlined,
+            label: '归档习惯 (暂时休眠)',
+            color: Colors.amber[700]!,
+            onTap: () {
+              Navigator.pop(context);
+              onArchive();
+            },
+          ),
+          const SizedBox(height: 12),
           Divider(color: isDark ? Colors.grey[800] : Colors.grey[200]),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildActionItem(
             context,
             icon: Icons.delete_outline_rounded,
-            label: '删除习惯',
+            label: '彻底删除习惯',
             color: Colors.redAccent,
             onTap: () {
               HapticFeedback.heavyImpact();
@@ -94,25 +106,26 @@ class HabitActionSheet extends StatelessWidget {
                   backgroundColor: Theme.of(context).cardColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   title: const Text('彻底删除？', style: TextStyle(fontWeight: FontWeight.bold)),
-                  content: Text('如果删除【${habit.name}】，所有的打卡记录将一并消失，且无法恢复。'),
+                  content: Text('如果删除【${habit.name}】，所有的打卡记录将一并消失，且无法恢复。建议使用“归档”保留历史。'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('手滑了', style: TextStyle(color: Colors.grey)),
+                      child: const Text('取消', style: TextStyle(color: Colors.grey)),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.pop(ctx); // 关弹窗
-                        onDelete();         // 触发删除
+                        Navigator.pop(context); // 关 ActionSheet
+                        onDelete();
                       },
-                      child: const Text('狠心删除', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                      child: const Text('确认删除', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
               );
             },
           ),
-          const SizedBox(height: 32), // 底部留白
+          const SizedBox(height: 16),
         ],
       ),
     );

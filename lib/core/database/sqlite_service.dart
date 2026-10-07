@@ -34,6 +34,12 @@ class SQLiteService {
         try {
           await db.execute("ALTER TABLE habits ADD COLUMN tags TEXT DEFAULT '[]'");
         } catch (_) {}
+        try {
+          await db.execute("ALTER TABLE habits ADD COLUMN stacked_after_habit_id TEXT");
+        } catch (_) {}
+        try {
+          await db.execute("ALTER TABLE habits ADD COLUMN stacked_after_habit_name TEXT");
+        } catch (_) {}
       },
     );
   }
@@ -75,6 +81,8 @@ CREATE TABLE habits (
   is_archived $boolType,
   time_of_day $textNull,
   tags $textNull,
+  stacked_after_habit_id $textNull,
+  stacked_after_habit_name $textNull,
   updated_at $textType
 )
 ''');
@@ -108,6 +116,9 @@ CREATE TABLE check_ins (
     map['frequency'] = jsonEncode(map['frequency']);
     map['reminders'] = jsonEncode(map['reminders']);
     map['tags'] = jsonEncode(map['tags']);
+    // SQLite 不支持 bool，转成 0 或 1
+    map['is_shared'] = habit.isShared ? 1 : 0;
+    map['is_archived'] = habit.isArchived ? 1 : 0;
     
     // 使用 replace 防止主键冲突时报错
     await db.insert('habits', map, conflictAlgorithm: ConflictAlgorithm.replace);
@@ -142,6 +153,8 @@ CREATE TABLE check_ins (
     map['frequency'] = jsonEncode(map['frequency']);
     map['reminders'] = jsonEncode(map['reminders']);
     map['tags'] = jsonEncode(map['tags']);
+    map['is_shared'] = habit.isShared ? 1 : 0;
+    map['is_archived'] = habit.isArchived ? 1 : 0;
     
     return db.update(
       'habits',
@@ -161,6 +174,40 @@ CREATE TABLE check_ins (
     );
   }
 
+  Future<int> archiveHabit(String id, bool isArchived) async {
+    final db = await instance.database;
+    return await db.update(
+      'habits',
+      {
+        'is_archived': isArchived ? 1 : 0,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<List<Habit>> getArchivedHabits() async {
+    final db = await instance.database;
+    final result = await db.query(
+      'habits',
+      where: 'is_archived = ?',
+      whereArgs: [1],
+      orderBy: 'updated_at DESC',
+    );
+
+    return result.map((json) {
+      final map = Map<String, dynamic>.from(json);
+      map['frequency'] = jsonDecode(map['frequency'] as String);
+      map['reminders'] = jsonDecode(map['reminders'] as String);
+      map['tags'] = map['tags'] != null ? jsonDecode(map['tags'] as String) : [];
+      map['time_of_day'] = map['time_of_day'] ?? 'all';
+      map['is_shared'] = map['is_shared'] == 1;
+      map['is_archived'] = map['is_archived'] == 1;
+      return Habit.fromJson(map);
+    }).toList();
+  }
+
   // ==========================================
   // CheckIns (打卡记录) 的 CRUD 操作
   // ==========================================
@@ -168,7 +215,25 @@ CREATE TABLE check_ins (
   Future<void> insertCheckIn(CheckIn checkIn) async {
     final db = await instance.database;
     final map = checkIn.toJson();
+    map['is_suspicious'] = checkIn.isSuspicious ? 1 : 0;
     await db.insert('check_ins', map, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  // 供【习惯详情页】查询指定习惯的所有历史打卡记录（倒序排列）
+  Future<List<CheckIn>> getCheckInsForHabit(String habitId) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'check_ins',
+      where: 'habit_id = ?',
+      whereArgs: [habitId],
+      orderBy: 'date DESC',
+    );
+
+    return result.map((json) {
+      final map = Map<String, dynamic>.from(json);
+      map['is_suspicious'] = map['is_suspicious'] == 1;
+      return CheckIn.fromJson(map);
+    }).toList();
   }
 
   // 供【年度热力图】查询一整年的打卡记录
@@ -203,6 +268,15 @@ CREATE TABLE check_ins (
     }).toList();
   }
 
+  Future<int> deleteCheckIn(String habitId, String dateString) async {
+    final db = await instance.database;
+    return await db.delete(
+      'check_ins',
+      where: 'habit_id = ? AND date = ?',
+      whereArgs: [habitId, dateString],
+    );
+  }
+
   // ==========================================
   // 关闭数据库
   // ==========================================
@@ -211,3 +285,4 @@ CREATE TABLE check_ins (
     db.close();
   }
 }
+

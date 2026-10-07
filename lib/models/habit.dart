@@ -16,6 +16,8 @@ class Habit {
   final bool isArchived;
   final String timeOfDay; // 'all', 'morning', 'afternoon', 'evening'
   final List<String> tags;
+  final String? stackedAfterHabitId; // 习惯堆叠前置锚点 ID
+  final String? stackedAfterHabitName; // 习惯堆叠前置习惯名称
   final DateTime updatedAt;
 
   Habit({
@@ -33,6 +35,8 @@ class Habit {
     this.isArchived = false,
     this.timeOfDay = 'all',
     this.tags = const [],
+    this.stackedAfterHabitId,
+    this.stackedAfterHabitName,
     required this.updatedAt,
   });
 
@@ -52,6 +56,8 @@ class Habit {
       isArchived: json['is_archived'] as bool? ?? false,
       timeOfDay: json['time_of_day'] as String? ?? 'all',
       tags: List<String>.from(json['tags'] ?? []),
+      stackedAfterHabitId: json['stacked_after_habit_id'] as String?,
+      stackedAfterHabitName: json['stacked_after_habit_name'] as String?,
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
@@ -72,6 +78,8 @@ class Habit {
       'is_archived': isArchived,
       'time_of_day': timeOfDay,
       'tags': tags,
+      'stacked_after_habit_id': stackedAfterHabitId,
+      'stacked_after_habit_name': stackedAfterHabitName,
       'updated_at': updatedAt.toIso8601String(),
     };
   }

@@ -48,25 +48,45 @@
   - **描述**：为习惯增加 `晨间 (Morning)`、`午间 (Afternoon)`、`晚间 (Evening)` 或自定义标签（如健康/工作/学习）；首页支持横向胶囊切换视图。
   - **落地交付**：已在 `Habit` 模型与 SQLite 数据库增加 `time_of_day` 和 `tags` 支持与自动迁移；在 `CreateHabitSheet` 中支持时段选择，并在 `HomeScreen` 提供横向胶囊时段过滤栏与单元测试。
 
-- [ ] **F2.3 《原子习惯》习惯堆叠触发器 (Habit Stacking)** `[P1]`
+- [x] **F2.3 《原子习惯》习惯堆叠触发器 (Habit Stacking)** `[P1]`
   - **灵感**：*James Clear《Atomic Habits》*
   - **描述**：允许新建习惯时设置“前置锚点”：“在 [习惯A] 之后做 [习惯B]”。首页打卡完 A 时，优雅弹出提示推荐顺带打卡 B。
-  - **涉及模块**：`lib/features/home/widgets/create_habit_sheet.dart`
+  - **落地交付**：已在 `Habit` 模型增加 `stackedAfterHabitId` 与锚点习惯选择器；打卡完成前置习惯后自动弹出“习惯堆叠”即时打卡胶囊，支持一键顺带完成，并通过单元测试验证。
+
+- [x] **F2.4 优质预设习惯模板库 (Curated Habit Preset Bundles)** `[P1]`
+  - **描述**：在新建习惯底部提供“精选预设包”（如：晨间一杯温水、25分钟深度工作、睡前慢读15页、正念呼吸冥想等），一键填入 Emoji、时段与颜色。
+  - **落地交付**：已在 `CreateHabitSheet` 集成可滑动的预设卡片列表，点击一键自动填充表单。
 
 ---
 
 ## 阶段三：数据主权与沉浸专注 (Phase 3: Privacy & Deep Focus)
 聚焦于本地数据安全、无依赖自由备份与专注环境搭建。
 
-- [ ] **F3.1 本地优先数据导入导出与备份 (JSON & CSV Backup)** `[P2]`
+- [x] **F3.1 本地优先数据导入导出与备份 (JSON & CSV Backup)** `[P2]`
   - **灵感**：*FriesI23/mhabit*, *Loop Habit Tracker*
   - **描述**：支持一键导出完整的 `gotime_backup.json`，随时可导入恢复；支持导出 `habits_data.csv`，方便用户在 Excel / Notion 自行分析。
-  - **涉及模块**：`lib/core/database/`, `lib/features/social/social_screen.dart`
+  - **落地交付**：已实现 `BackupService`，支持 RFC 4180 标准 CSV 导出与完整 JSON 备份及合法性校验，并在圈子/设置页提供 `BackupDialog` 界面与自动化测试。
 
-- [ ] **F3.2 专注计时器白噪音背景音 (Ambient Focus Audio)** `[P2]`
+- [x] **F3.2 专注计时器白噪音声境与颂钵禅鸣 (Ambient Focus Soundscapes)** `[P2]`
   - **灵感**：*Forest / InlitX*
-  - **描述**：番茄钟/计时专注期间，支持伴随舒缓的雨声 🌧️、森林 🌲、咖啡馆 ☕ 白噪音，倒计时结束提供颂钵提醒。
-  - **涉及模块**：`lib/features/timer/timer_screen.dart`
+  - **描述**：番茄钟/计时专注期间，支持伴随舒缓的雨声 🌧️、森林 🌲、潮汐 🌊、壁炉 🔥、咖啡馆 ☕ 白噪音，倒计时结束提供颂钵禅鸣并自动记录打卡。
+  - **落地交付**：已实现 `AmbientSoundService`、`SoundSelectorSheet`、动态起伏波形条 `SoundWaveVisualizer`，专注倒计时结束自动记录 `duration_seconds` 到打卡数据库，并提供暂停/继续控制。
 
-- [ ] **F3.3 桌面小组件支持 (Home Screen Widgets)** `[P2]`
+- [x] **F3.3 打卡心得笔记与心情记录真实持久化 (Check-in Note & Mood Logging)** `[P1]`
+  - **描述**：将打卡心得备忘与 1~5 档心情 Emoji 真实持久化存储到 `check_ins` 表的 `log_text` 和 `mood` 字段；在习惯详情页可查看历史感悟时间轴，并支持随时补充记录。
+  - **落地交付**：已在 `HomeScreen` 连接打卡日志真实插入与取消反选同步，在 `HabitDetailScreen` 渲染真实打卡感悟流与“写心得”入口，并通过自动化测试验证。
+
+- [x] **F3.4 习惯归档管理与休眠池 (Habit Archive & Restore)** `[P2]`
+  - **描述**：对于暂时中止但不想删除历史统计的习惯（如考研结束、季节性运动），支持一键“归档休眠”；从今日打卡流隐藏，随时可以在“归档池”中一键唤醒恢复。
+  - **落地交付**：已在 `SQLiteService` 实现 `archiveHabit` 与 `getArchivedHabits`，在 `HabitActionSheet` 提供“归档”菜单，并在主页右上角提供 `ArchivedHabitsSheet` 唤醒管理界面。
+
+---
+
+## 阶段四：跨端扩展与生态互联 (Phase 4: Ecosystem & Platform Expansion)
+
+- [ ] **F4.1 桌面小组件支持 (Home Screen Widgets)** `[P2]`
   - **描述**：在 Android 与 iOS 桌面提供 2x2 与 4x2 习惯进度与一键打卡小组件。
+
+- [ ] **F4.2 端到端加密云备份与多端同步 (E2EE Sync)** `[P3]`
+  - **描述**：支持 WebDAV 或坚果云/Google Drive 远端自动私密同步。
+

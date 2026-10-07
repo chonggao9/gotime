@@ -11,6 +11,7 @@ import 'widgets/create_habit_sheet.dart';
 import 'widgets/log_habit_sheet.dart';
 import 'widgets/habit_action_sheet.dart';
 import 'widgets/confetti_overlay.dart';
+import 'widgets/archived_habits_sheet.dart';
 import '../stats/widgets/share_poster_dialog.dart';
 import 'package:uuid/uuid.dart';
 
@@ -121,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => CreateHabitSheet(
+        existingHabits: _habits,
         onSave: (newHabit) async {
           if (!kIsWeb) {
             await SQLiteService.instance.insertHabit(newHabit);
@@ -178,6 +180,24 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
         },
+        onArchive: () async {
+          HapticFeedback.mediumImpact();
+          if (!kIsWeb) {
+            await SQLiteService.instance.archiveHabit(habit.id, true);
+          } else {
+            setState(() => _habits.removeWhere((h) => h.id == habit.id));
+          }
+          _loadHabits();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('已归档「${habit.name}」，可在归档池随时唤醒 📦'),
+                backgroundColor: Colors.amber[700],
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
         onDelete: () async {
           if (!kIsWeb) {
             await SQLiteService.instance.deleteHabit(habit.id);
@@ -200,9 +220,35 @@ class _HomeScreenState extends State<HomeScreen> {
         habitThemeColor: habit.themeColor,
         onSave: (logText, mood) async {
           HapticFeedback.heavyImpact();
+          final todayStr = DateTime.now().toIso8601String().split('T')[0];
+          final checkIn = CheckIn(
+            id: const Uuid().v4(),
+            habitId: habit.id,
+            date: todayStr,
+            status: CheckInStatus.completed,
+            logText: logText.isNotEmpty ? logText : null,
+            mood: mood,
+            createdAt: DateTime.now(),
+          );
+
+          if (!kIsWeb) {
+            await SQLiteService.instance.insertCheckIn(checkIn);
+          }
+
+          setState(() {
+            _skippedHabitIds.remove(habit.id);
+            _completedHabitIds.add(habit.id);
+          });
+
+          _checkAllCompleted();
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('习惯日志已保存！'), behavior: SnackBarBehavior.floating),
+              SnackBar(
+                content: Text('「${habit.name}」心得日志已保存，今日已打卡！✨'),
+                backgroundColor: AppTheme.mintGreen,
+                behavior: SnackBarBehavior.floating,
+              ),
             );
           }
         },
@@ -233,13 +279,52 @@ class _HomeScreenState extends State<HomeScreen> {
           createdAt: DateTime.now(),
         );
         await SQLiteService.instance.insertCheckIn(checkIn);
+      } else {
+        await SQLiteService.instance.deleteCheckIn(habit.id, todayStr);
+      }
+    }
+
+    // 检查是否有下游堆叠的习惯触发提醒 (F2.3 习惯堆叠触发器)
+    if (!wasAlreadyCompleted && _completedHabitIds.contains(habit.id)) {
+      final stackedHabits = _habits.where((h) => 
+        h.stackedAfterHabitId == habit.id || 
+        h.stackedAfterHabitName == habit.name
+      ).toList();
+
+      if (stackedHabits.isNotEmpty) {
+        final nextHabit = stackedHabits.first;
+        if (!_completedHabitIds.contains(nextHabit.id)) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('⛓️ 习惯堆叠：完成了【${habit.name}】，顺便完成【${nextHabit.name}】吧！'),
+                  backgroundColor: AppTheme.darkMintGreen,
+                  behavior: SnackBarBehavior.floating,
+                  action: SnackBarAction(
+                    label: '立即完成',
+                    textColor: Colors.white,
+                    onPressed: () {
+                      _toggleHabit(nextHabit);
+                    },
+                  ),
+                ),
+              );
+            }
+          });
+        }
       }
     }
 
     // 检查是否全勤达成，触发五彩纸屑庆祝
+    if (!wasAlreadyCompleted) {
+      _checkAllCompleted();
+    }
+  }
+
+  void _checkAllCompleted() {
     if (_habits.isNotEmpty &&
-        _completedHabitIds.length + _skippedHabitIds.length >= _habits.length &&
-        !wasAlreadyCompleted) {
+        _completedHabitIds.length + _skippedHabitIds.length >= _habits.length) {
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
           ConfettiCelebrationDialog.show(context);
@@ -429,11 +514,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(width: 4),
               Padding(
-                padding: const EdgeInsets.only(right: 16.0),
+                padding: const EdgeInsets.only(right: 12.0),
                 child: IconButton(
-                  icon: const Icon(Icons.cloud_done_rounded, color: AppTheme.mintGreen, size: 24),
+                  tooltip: '已归档习惯 (休眠池)',
+                  icon: const Icon(Icons.inventory_2_outlined, size: 22),
                   onPressed: () {
                     HapticFeedback.lightImpact();
+                    ArchivedHabitsSheet.show(
+                      context,
+                      onHabitRestored: () {
+                        _loadHabits();
+                      },
+                    );
                   },
                 ),
               ),

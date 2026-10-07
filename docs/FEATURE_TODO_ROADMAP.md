@@ -38,15 +38,15 @@
 ## 阶段二：使用效率与破圈传播 (Phase 2: Growth & Sharing)
 聚焦于降低打卡认知负荷、促进自发性社交分享。
 
-- [ ] **F2.1 一键生成杂志级打卡分享海报 (Aesthetic Share Card)** `[P1]`
+- [x] **F2.1 一键生成杂志级打卡分享海报 (Aesthetic Share Card)** `[P1]`
   - **灵感**：*Everyday / Streaks*
   - **描述**：在数据洞察或习惯详情中，点击分享按钮，自动将年度热力图、连胜数据与今日格言渲染成精致的极简卡片，支持一键保存到本地相册或分享至社交网络。
-  - **涉及模块**：`lib/features/stats/`, `lib/features/home/widgets/`
+  - **落地交付**：已实现 `SharePosterDialog`，支持 RepaintBoundary 高清截图渲染、自适应专属寄语、微型足迹热力图呈现，已在首页每日金句、数据洞察页及习惯详情页完成全面联动。
 
-- [ ] **F2.2 习惯时段分类与标签过滤 (Time-of-day & Tags Filter)** `[P1]`
+- [x] **F2.2 习惯时段分类与标签过滤 (Time-of-day & Tags Filter)** `[P1]`
   - **灵感**：*FriesI23/mhabit*
   - **描述**：为习惯增加 `晨间 (Morning)`、`午间 (Afternoon)`、`晚间 (Evening)` 或自定义标签（如健康/工作/学习）；首页支持横向胶囊切换视图。
-  - **涉及模块**：`lib/models/habit.dart`, `lib/features/home/home_screen.dart`
+  - **落地交付**：已在 `Habit` 模型与 SQLite 数据库增加 `time_of_day` 和 `tags` 支持与自动迁移；在 `CreateHabitSheet` 中支持时段选择，并在 `HomeScreen` 提供横向胶囊时段过滤栏与单元测试。
 
 - [ ] **F2.3 《原子习惯》习惯堆叠触发器 (Habit Stacking)** `[P1]`
   - **灵感**：*James Clear《Atomic Habits》*

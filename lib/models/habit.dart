@@ -14,6 +14,8 @@ class Habit {
   final List<String> reminders;
   final bool isShared;
   final bool isArchived;
+  final String timeOfDay; // 'all', 'morning', 'afternoon', 'evening'
+  final List<String> tags;
   final DateTime updatedAt;
 
   Habit({
@@ -29,6 +31,8 @@ class Habit {
     this.reminders = const [],
     this.isShared = false,
     this.isArchived = false,
+    this.timeOfDay = 'all',
+    this.tags = const [],
     required this.updatedAt,
   });
 
@@ -46,6 +50,8 @@ class Habit {
       reminders: List<String>.from(json['reminders'] ?? []),
       isShared: json['is_shared'] as bool? ?? false,
       isArchived: json['is_archived'] as bool? ?? false,
+      timeOfDay: json['time_of_day'] as String? ?? 'all',
+      tags: List<String>.from(json['tags'] ?? []),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
@@ -64,6 +70,8 @@ class Habit {
       'reminders': reminders,
       'is_shared': isShared,
       'is_archived': isArchived,
+      'time_of_day': timeOfDay,
+      'tags': tags,
       'updated_at': updatedAt.toIso8601String(),
     };
   }

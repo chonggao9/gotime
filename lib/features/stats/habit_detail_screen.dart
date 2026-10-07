@@ -3,6 +3,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../models/habit.dart';
 import '../../../models/check_in.dart';
 import '../../../core/services/habit_strength_service.dart';
+import 'widgets/share_poster_dialog.dart';
 
 class HabitDetailScreen extends StatefulWidget {
   final Habit habit;
@@ -86,6 +87,22 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         ),
         title: const Text('习惯深度洞察'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.ios_share_rounded),
+            tooltip: '生成习惯分享海报',
+            onPressed: () {
+              SharePosterDialog.show(
+                context,
+                streakDays: _currentStreak,
+                strengthPercent: (_habitStrength * 100).toInt(),
+                strengthLabel: HabitStrengthService.getStrengthLabel(_habitStrength),
+                quote: '坚持「${widget.habit.name}」，日积月累，终成自然。',
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: _isLoading 
         ? Center(child: CircularProgressIndicator(color: themeColor))

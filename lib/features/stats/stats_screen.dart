@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import 'widgets/heatmap_calendar.dart';
+import 'widgets/share_poster_dialog.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -42,6 +43,16 @@ class _StatsScreenState extends State<StatsScreen> {
       appBar: AppBar(
         title: const Text('数据洞察', style: TextStyle(letterSpacing: 2)),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.ios_share_rounded),
+            tooltip: '生成分享海报',
+            onPressed: () {
+              SharePosterDialog.show(context);
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),

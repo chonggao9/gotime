@@ -22,11 +22,19 @@ class SQLiteService {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    // 打开数据库，并指定 onCreate 回调用于首次建表
+    // 打开数据库，并指定 onCreate 回调用于首次建表，onOpen 确保新列存在
     return await openDatabase(
       path,
       version: 1,
       onCreate: _createDB,
+      onOpen: (db) async {
+        try {
+          await db.execute("ALTER TABLE habits ADD COLUMN time_of_day TEXT DEFAULT 'all'");
+        } catch (_) {}
+        try {
+          await db.execute("ALTER TABLE habits ADD COLUMN tags TEXT DEFAULT '[]'");
+        } catch (_) {}
+      },
     );
   }
 
@@ -65,6 +73,8 @@ CREATE TABLE habits (
   reminders $textType,
   is_shared $boolType,
   is_archived $boolType,
+  time_of_day $textNull,
+  tags $textNull,
   updated_at $textType
 )
 ''');
@@ -97,6 +107,7 @@ CREATE TABLE check_ins (
     // SQLite 不支持 Map/List，需要转成 JSON 字符串
     map['frequency'] = jsonEncode(map['frequency']);
     map['reminders'] = jsonEncode(map['reminders']);
+    map['tags'] = jsonEncode(map['tags']);
     
     // 使用 replace 防止主键冲突时报错
     await db.insert('habits', map, conflictAlgorithm: ConflictAlgorithm.replace);
@@ -116,6 +127,8 @@ CREATE TABLE check_ins (
       // 还原 JSON 字符串为对象
       map['frequency'] = jsonDecode(map['frequency'] as String);
       map['reminders'] = jsonDecode(map['reminders'] as String);
+      map['tags'] = map['tags'] != null ? jsonDecode(map['tags'] as String) : [];
+      map['time_of_day'] = map['time_of_day'] ?? 'all';
       // SQLite 中 Boolean 存为 Integer (0 或 1)
       map['is_shared'] = map['is_shared'] == 1;
       map['is_archived'] = map['is_archived'] == 1;
@@ -128,6 +141,7 @@ CREATE TABLE check_ins (
     final map = habit.toJson();
     map['frequency'] = jsonEncode(map['frequency']);
     map['reminders'] = jsonEncode(map['reminders']);
+    map['tags'] = jsonEncode(map['tags']);
     
     return db.update(
       'habits',
